@@ -30,3 +30,40 @@ body{position:relative;isolation:isolate}
 .page-backdrop{position:fixed;inset:-40px;z-index:-1;background-size:cover;background-position:center;filter:blur(26px);transform:scale(1.04);pointer-events:none}
 .page-backdrop[hidden]{display:none}
 .has-scene .site-footer{background:transparent}
+/* Floating glass navigation. Only deliberate navigation requests smooth scrolling. */
+html{scroll-behavior:auto}
+html,body,main{scroll-snap-type:none}
+.category-section,.about-section{scroll-snap-align:none;scroll-snap-stop:normal}
+.site-header{display:grid;grid-template-columns:48px minmax(0,1fr) 48px;row-gap:12px;align-items:center}
+.menu-toggle{grid-column:1;grid-row:1}.site-header>.wordmark{grid-column:2;grid-row:1;justify-self:center}#search-open{grid-column:3;grid-row:1}
+.section-nav{grid-column:1/-1;grid-row:2;position:relative;display:flex;align-items:center;justify-self:center;isolation:isolate;gap:0;width:max-content;max-width:100%;padding:5px;border-radius:50px;background:linear-gradient(135deg,#ffffff80,#ffffff30);border:1px solid #ffffffc9;backdrop-filter:blur(26px) saturate(165%);-webkit-backdrop-filter:blur(26px) saturate(165%);box-shadow:inset 1px 1px 2px #ffffffed,inset -1px -1px 2px #acb5ae45,0 7px 25px #3d514713;overflow:hidden}
+.section-nav a{z-index:1;display:flex;align-items:center;justify-content:center;min-height:42px;padding:0 18px;font-size:12px;font-weight:400;line-height:1.5;border-radius:40px;white-space:nowrap;color:#56675c;transition:color .25s,background-color .25s}
+.section-nav a.is-active{color:#263d2d}
+.section-nav-indicator{position:absolute;left:0;top:5px;bottom:5px;z-index:0;border:1px solid #ffffffe0;border-radius:40px;background:linear-gradient(145deg,#ffffffb3,#ffffff52 55%,#e6eee638);box-shadow:inset 1px 2px 4px #ffffffed,inset -1px -1px 3px #c0c6c12e,0 3px 9px #5f74671c;transition:transform .5s var(--ease),width .5s var(--ease);pointer-events:none}
+.section-nav-indicator:after{content:'';position:absolute;inset:1px;border-radius:inherit;background:linear-gradient(145deg,#fff8,transparent 48%,#fff2);pointer-events:none}
+.site-header.scrolled{background:linear-gradient(#f8f9f5c9,#f8f9f540 75%,#f8f9f500)}
+.inner-page{padding-top:185px}
+.about-section{padding-top:160px}
+/* Artwork and copy enter without changing section heights or scroll positions. */
+.category-art{transition:opacity 1s var(--ease),transform 1.25s var(--ease);transform:translate3d(0,0,0) scale(1)}
+.category-copy{transition:opacity .9s var(--ease),transform 1s var(--ease)}
+.category-copy>*{transition:opacity .8s var(--ease),transform .9s var(--ease)}
+.category-copy>:nth-child(2){transition-delay:70ms}.category-copy>:nth-child(3){transition-delay:110ms}.category-copy>:nth-child(4){transition-delay:150ms}.category-copy>:nth-child(5){transition-delay:190ms}
+.scene-pending .category-art{opacity:.55;transform:translate3d(0,24px,0) scale(1.035)}
+.scene-pending .category-copy{opacity:0;transform:translate3d(0,42px,0)}
+.scene-pending .category-copy>*{opacity:0;transform:translate3d(0,14px,0)}
+/* A persistent glass flash also covers links that immediately change the page. */
+.glass-click-layer{position:fixed;inset:0;z-index:90;overflow:hidden;pointer-events:none;contain:strict}
+.glass-click-wave{position:absolute;display:block;width:108px;height:108px;pointer-events:none;border-radius:50%;border:1px solid #ffffffd9;background:radial-gradient(ellipse at 32% 20%,#ffffffb5, #ffffff19 46%,#f0e9f249 66%,#ffffff70 78%,#ffffff00 100%);box-shadow:inset 1px 2px 6px #ffffffd9,inset -1px -2px 7px #b8c5ba38,0 3px 18px #6f82751a;backdrop-filter:blur(2px) saturate(130%);-webkit-backdrop-filter:blur(2px) saturate(130%);transform:translate(-50%,-50%);animation:glass-click .72s var(--ease) forwards}
+.dialog-glass-wave{z-index:20}
+.glass-pressed{box-shadow:inset 0 1px 10px #ffffffe6,inset 0 -1px 2px #d8e5df70,0 0 0 1px #ffffffc9!important}
+@keyframes glass-click{0%{opacity:.85;transform:translate(-50%,-50%) scale(.25)}45%{opacity:.55}100%{opacity:0;transform:translate(-50%,-50%) scale(1.35)}}
+@media(hover:hover) and (pointer:fine){.section-nav a:hover{background-color:#ffffff38;color:#314c3b}}
+@media(max-width:700px){.site-header{grid-template-columns:46px minmax(0,1fr) 46px;row-gap:9px}.section-nav{padding:4px}.section-nav a{min-height:40px;padding:0 9px;font-size:12px}.section-nav-indicator{top:4px;bottom:4px}.inner-page{padding-top:155px}.about-section{padding-top:150px}.category-section{padding-top:150px}.category-copy{backdrop-filter:blur(16px) saturate(140%);-webkit-backdrop-filter:blur(16px) saturate(140%)}.search-dialog{margin-top:calc(138px + env(safe-area-inset-top));max-height:calc(100dvh - 160px - env(safe-area-inset-top))}}
+@media(max-width:359px){.section-nav a{padding:0 8px;font-size:11px}.glass-click-wave{width:92px;height:92px}}
+@media(max-height:520px) and (orientation:landscape){.site-header{padding-top:calc(8px + env(safe-area-inset-top));row-gap:5px}.section-nav a{min-height:36px}.inner-page{padding-top:145px}.hero-copy{padding-top:140px}.about-section{padding-top:150px}}
+@media(prefers-reduced-motion:reduce){.scene-pending .category-art,.scene-pending .category-copy,.scene-pending .category-copy>*{opacity:1;transform:none}.glass-click-wave{opacity:.4;transform:translate(-50%,-50%) scale(.7)}}
+/* Leave room for the fixed glass bar on shorter desktop windows too. */
+@media(min-width:701px){.category-section{padding-top:170px}}
+/* Each homepage scene occupies a page; interior reading pages stay continuous. */
+.home-paging .category-section{min-height:100svh}
