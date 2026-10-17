@@ -1,33 +1,20 @@
 {
   "version": 1,
-  "revision": "profile-mvc5l5db-600f1a89",
+  "revision": "pub-mvc7ecby-832bfa96",
   "posts": [
     {
       "id": "hello-world",
-      "category": "life",
       "title": "给自己留一小块互联网",
+      "category": "life",
       "date": "2026-10-17",
       "tags": [
-        "建站手记",
-        "新的开始"
+        "游戏"
       ],
-      "demo": true,
-      "pinned": true,
-      "excerpt": "把想法慢慢写下来，把散落的记录放在一起。这个小小的站点，就从这里开始。",
-      "body": [
-        {
-          "heading": "一个可以慢慢生长的地方",
-          "text": "这是网站第一篇示例文章。你可以把这里改成建站的初衷，也可以写下一段最近想说的话。个人主页不需要一开始就有完整答案，重要的是有一个愿意回来的地方。"
-        },
-        {
-          "heading": "这里会放什么",
-          "text": "学习笔记用来整理知识，项目栏目记录从想法到实现的过程，生活随笔留给那些不必急着归类的念头。"
-        },
-        {
-          "heading": "写给未来的自己",
-          "text": "这一段可以换成你对未来的期待。文章支持段落、小标题和标签，后续可以继续增加内容。"
-        }
-      ]
+      "excerpt": "等了很久的正义皮肤终于出了，毫不犹豫直接拿下，钱包痛失129😭",
+      "markdown": "![Screenshot_20261016_083318_com_tencent_apps_valorant_MainZoneHomeActivity](./assets/uploads/hello-world/3024b324-8778-4e20-b195-5f41717603fe.webp)\n\n![Screenshot_20261016_085456_com_tencent_apps_valorant_RNHostActivity](./assets/uploads/hello-world/73bdbc8a-4e24-46c9-ab16-03f9a30bb5a9.webp)\n等了很久的正义皮肤终于出了，毫不犹豫直接拿下，钱包痛失129😭",
+      "demo": false,
+      "createdAt": "2026-10-17T09:37:56.900Z",
+      "updatedAt": "2026-10-17T09:37:56.900Z"
     },
     {
       "id": "learning-map",
