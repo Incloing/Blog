@@ -8,10 +8,10 @@ window.BLOG = {
   // 填入本人在各平台的个人主页完整链接。留空时显示待补充状态。
   social: [
     { id: 'github', label: 'GitHub', href: 'https://github.com/Incloing' },
-    { id: 'xiaohongshu', label: '小红书', href: '' },
-    { id: 'x', label: 'X', href: '' },
-    { id: 'instagram', label: 'Instagram', href: '' },
-    { id: 'facebook', label: 'Facebook', href: '' }
+    { id: 'xiaohongshu', label: '小红书', href: 'https://www.xiaohongshu.com/user/profile/6847afbf000000001d01702f' },
+    { id: 'x', label: 'X', href: 'https://x.com/InclosingAAA' },
+    { id: 'instagram', label: 'Instagram', href: 'https://www.instagram.com/yangyangyang93869/' },
+    { id: 'facebook', label: 'Facebook', href: 'https://www.facebook.com/share/1Jz43UqUc8/' }
   ],
   tagline: '记录，探索，慢慢生长。',
   intro: '你好，我是 Incloing。\n这里记录学习、创造，和日常的小小发现。',
