@@ -35,5 +35,3 @@ Final prompt:
 - Outfit、Noto Sans SC：Google Fonts，SIL Open Font License，许可证位于 `assets/fonts/`。
 - Material Symbols Rounded：Google Material Symbols，Apache 2.0，许可证位于 `assets/fonts/`。按实际图标名称提取子集并自托管。
 - QQ 联络图标为代码内联的简笔轮廓。
-
-- 加载文字采用 Press Start 2P 像素字体，仅包含 `LOADING` 的字形子集，SIL Open Font License，字体和许可证保存在 `assets/fonts/loading-pixel.woff2` 与 `assets/fonts/LICENSE-loading-pixel.txt`。
