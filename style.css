@@ -25,3 +25,8 @@
 .about-section:before{inset:-38px;background:url('./assets/hero-pastel.webp') center/cover no-repeat;filter:blur(24px);transform:scale(1.05);z-index:-2}
 .about-section:after{content:'';position:absolute;inset:0;background:rgba(248,250,244,.68);z-index:-1}
 @media(max-width:700px) and (orientation:portrait){.about-section:before{background-image:url('./assets/hero-pastel-mobile.webp')}}
+/* 分类列表与文章沿用所属分类的配图，虚化后作为整页背景。 */
+body{position:relative;isolation:isolate}
+.page-backdrop{position:fixed;inset:-40px;z-index:-1;background-size:cover;background-position:center;filter:blur(26px);transform:scale(1.04);pointer-events:none}
+.page-backdrop[hidden]{display:none}
+.has-scene .site-footer{background:transparent}

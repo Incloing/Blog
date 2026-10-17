@@ -44,6 +44,11 @@
   else if(parts[0]==='archive'){main.innerHTML=`<section class="inner-page">${crumbs('全部文章')}<h1>全部文章</h1><div id="post-list">${sorted().map(row).join('')}</div>${notice}</section>`;label='全部文章';}
   else if(parts[0]==='post'){let id='';try{id=decodeURIComponent(parts[1]||'')}catch{}main.innerHTML=article(id);label=blog.posts.find(p=>p.id===id)?.title||'未找到内容';}
   else main.innerHTML=missing();
+  let scene=cat(parts[0])?.id;
+  if(parts[0]==='post'){try{scene=blog.posts.find(p=>p.id===decodeURIComponent(parts[1]||''))?.category;}catch{}}
+  const backdrop=document.querySelector('#page-backdrop');backdrop.hidden=!scene;
+  backdrop.style.backgroundImage=scene?`linear-gradient(rgba(248,249,245,.72),rgba(248,249,245,.72)),url("${cover(scene)}")`:'';
+  document.body.classList.toggle('has-scene',Boolean(scene));document.body.dataset.scene=scene||'';
   document.title=label==='首页'?'Incloing · 记录，探索，慢慢生长':`${label} · Incloing`;
   document.querySelectorAll('.drawer-nav a').forEach(a=>{if(a.getAttribute('href')==='#/'+(parts[0]==='post'?(blog.posts.find(p=>p.id===parts[1])?.category||''):parts[0]))a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
   window.scrollTo({top,behavior:'instant'});if(focus)main.focus({preventScroll:true});
