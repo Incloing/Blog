@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Incloing 的个人空间：学习笔记、项目，以及生活里值得记录的小事。">
+  <meta name="theme-color" content="#f7f8f3"><title>Incloing · 记录，探索，慢慢生长</title>
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="./style.css">
+  <script src="./content.js" defer></script><script src="./app.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#main">跳到主要内容</a>
+  <header class="header"><div class="header-inner">
+    <a href="#/" class="brand" aria-label="Incloing 首页"><span class="brand-mark">i<span>✳</span></span>Incloing<span class="brand-dot">.</span></a>
+    <nav aria-label="主导航"><a href="#/" data-nav="home">首页</a><a href="#/notes" data-nav="notes">学习笔记</a><a href="#/projects" data-nav="projects">项目</a><a href="#/life" data-nav="life">生活随笔</a><a href="#/about" data-nav="about">关于我</a></nav>
+    <div class="header-actions"><button id="search-open" class="icon-button" aria-label="搜索文章"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4"/></svg><kbd> / </kbd></button><button id="theme" class="icon-button" aria-label="切换深色模式"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14a8.3 8.3 0 0 1-10-10A8.5 8.5 0 1 0 20 14Z"/></svg></button></div>
+  </div></header>
+  <main id="main" tabindex="-1"></main>
+  <footer><a class="footer-brand" href="#/">Incloing.</a><span>把好奇留给世界，把记录留给自己。</span><span>© <span id="year"></span> Incloing <i>✳</i></span></footer>
+  <dialog id="search-dialog" aria-labelledby="search-title"><div class="search-heading"><h2 id="search-title">在这里找一找</h2><button id="search-close" class="icon-button" aria-label="关闭搜索">×</button></div><label class="sr-only" for="search-input">搜索标题、分类或正文</label><input id="search-input" type="search" placeholder="搜索笔记、项目、随笔…" autocomplete="off"><div id="search-results" aria-live="polite"></div><p class="search-hint">按 Esc 关闭 · 搜索这个站点的全部内容</p></dialog>
+</body></html>
