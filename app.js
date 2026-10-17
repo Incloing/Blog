@@ -17,6 +17,7 @@
  const homeSections=['top','intro','category-notes','category-projects','category-life','visitors','guestbook'];
  let pageAnchorId='top',pageQueue=[],pageDrainFrame=0,wheelConsumed=false,wheelPaneGesture=false,wheelGestureTimer,touchGesture=null;
  const editing=target=>target.closest('input,textarea,select,[contenteditable="true"]');
+ const paneEdge=(pane,direction)=>direction>0?pane.scrollHeight-pane.clientHeight-pane.scrollTop<=3:pane.scrollTop<=3;
  function homePaging(){return Boolean(main.querySelector('.hero'))&&!document.querySelector('dialog[open]');}
  function startSectionScroll(top,id){
   const direction=Math.sign(top-window.scrollY)||1;
@@ -67,9 +68,21 @@
   pageQueue.push(direction>0?1:-1);drainPageQueue();
  }
  function fact(id,label,content,graphic){return `<div class="fact"><button class="icon-button fact-button glass" data-fact="${id}" aria-label="${esc(label)}" aria-expanded="false" aria-controls="fact-${id}">${graphic}</button><div class="fact-pop" id="fact-${id}" role="tooltip">${esc(content)}</div></div>`;}
+ function bioHtml(standalone){
+  const bio=blog.profile.bio;
+  if(!bio)return '关于我的故事，留在这里慢慢写。<span>自我介绍待补充</span>';
+  const short=!standalone&&(bio.length>60||bio.split('\n').length>3);
+  const text=short?bio.slice(0,60).split('\n').slice(0,3).join('\n'):bio;
+  return `<p class="bio-text">${esc(text)}${short?'…':''}</p>${short?'<a class="bio-more" href="#/about">阅读完整简介 ↗</a>':''}`;
+ }
+ function profileFacts(){const p=blog.profile;return fact('school',p.school||'学校，待补充',p.school||'学校 · 待补充',icon('school'))+fact('major',p.major||'专业，待补充',p.major||'专业 · 待补充',icon('psychology'))+fact('qq',p.qq?'QQ：'+p.qq:'QQ，待补充',p.qq?'QQ · '+p.qq:'QQ · 待补充',qqIcon);}
+ function updateProfileView(){
+  const intro=document.querySelector('#intro');if(!intro)return;
+  intro.querySelector('.profile-facts').innerHTML=profileFacts();
+  intro.querySelector('.bio-placeholder').innerHTML=bioHtml(intro.classList.contains('route-enter'));
+ }
  function about(standalone=false){
-  const p=blog.profile;
-  return `<section class="about-section ${standalone?'route-enter':''}" id="intro" aria-labelledby="about-heading"><div class="about-inner reveal"><p class="section-kicker">01 / A LITTLE ABOUT ME</p><div class="avatar-wrap glass"><img src="./assets/avatar.webp" alt="Incloing 的头像" width="96" height="96" loading="lazy"></div><h${standalone?'1':'2'} class="about-title" id="about-heading">你好，我是 <em>Incloing</em>。</h${standalone?'1':'2'}><p class="about-tagline">${esc(blog.tagline)}</p><div class="profile-facts" aria-label="个人资料，点击图标查看">${fact('school',p.school,p.school,icon('school'))}${fact('major',p.major,p.major,icon('psychology'))}${fact('qq',p.qq?'QQ：'+p.qq:'QQ，待补充',p.qq?'QQ · '+p.qq:'QQ · 待补充',qqIcon)}</div><div class="bio-placeholder">${p.bio?esc(p.bio):'关于我的故事，留在这里慢慢写。'}${p.bio?'':'<span>自我介绍待补充</span>'}</div>${standalone?`<a class="about-next" href="#/">回到首页 ${icon('arrow_forward')}</a>`:`<button class="text-button about-next" data-scroll="category-notes">继续探索 ${icon('arrow_downward')}</button>`}</div></section>`;
+  return `<section class="about-section ${standalone?'route-enter':''}" id="intro" aria-labelledby="about-heading"><div class="about-inner reveal"><p class="section-kicker">01 / A LITTLE ABOUT ME</p><div class="avatar-wrap glass"><img src="./assets/avatar.webp" alt="Incloing 的头像" width="96" height="96" loading="lazy"></div><h${standalone?'1':'2'} class="about-title" id="about-heading">你好，我是 <em>Incloing</em>。</h${standalone?'1':'2'}><p class="about-tagline">${esc(blog.tagline)}</p><div class="profile-facts" aria-label="个人资料，点击图标查看">${profileFacts()}</div><div class="bio-placeholder">${bioHtml(standalone)}</div>${standalone?`<a class="about-next" href="#/">回到首页 ${icon('arrow_forward')}</a>`:`<button class="text-button about-next" data-scroll="category-notes">继续探索 ${icon('arrow_downward')}</button>`}</div></section>`;
  }
  function home(){return `<section class="hero" aria-label="欢迎来到 Incloing"><picture><source media="(max-width:700px) and (orientation:portrait)" srcset="./assets/hero-pastel-mobile.webp"><img class="hero-bg" src="./assets/hero-pastel.webp" alt="浅粉与淡紫的天空、镜面圆环和绿色起伏的山丘" width="1672" height="941" fetchpriority="high"></picture><div class="hero-copy"><p class="hero-eyebrow">A LITTLE CORNER OF THE INTERNET</p><h1 class="poem" aria-label="${esc(blog.heroText)}"><span class="poem-reserve" aria-hidden="true">${esc(blog.heroText)}</span><span class="poem-typed" aria-hidden="true"><span id="typed-text"></span><i class="typing-cursor"></i></span></h1><p class="welcome">欢迎来到Incloing的个人主页</p></div><button class="scroll-cue text-button" data-scroll="intro"><span>向下，认识一下我</span><span class="icon-button glass">${icon('arrow_downward')}</span></button></section>${about()}${blog.categories.map((c,i)=>`<section class="category-section ${c.id}-scene" id="category-${c.id}" aria-labelledby="category-title-${c.id}"><img class="category-art" src="${cover(c.id)}" alt="${esc(c.artAlt)}" loading="lazy" width="1000" height="1000"><div class="category-copy glass reveal"><span class="section-no">0${i+2} / ${esc(c.english)}</span><h2 id="category-title-${c.id}">${esc(c.title)}</h2><p class="category-english">${esc(c.subtitle)}</p><p class="category-desc">${esc(c.description)}</p><a class="pill-link glass" href="#/${c.id}">进入${esc(c.title)} ${icon('arrow_forward')}</a></div><span class="section-edge" aria-hidden="true">THINK · BUILD · LIVE</span></section>`).join('')}${window.IncloingCommunity?.sections()||''}`;}
  function collection(id){
@@ -92,9 +105,9 @@
  function scrollHomeTo(id){
   cancelSectionScroll();closeAll();
   if(!main.querySelector('.hero')){rememberScroll();history.pushState({scroll:0},'','#/');render(0,false);}
-  const target=id==='top'?main.querySelector('.hero'):document.getElementById(id);
+  const target=id==='top'?main.querySelector('.hero'):id==='footer'?document.querySelector('.site-footer'):document.getElementById(id);
   if(!target)return;
-  startSectionScroll(target.offsetTop,id);
+  startSectionScroll(Math.min(target.offsetTop,Math.max(0,document.documentElement.scrollHeight-window.innerHeight)),id);
  }
  function cancelSectionScroll(){
   pendingFlip=null;flipAnimation?.cancel();flipAnimation=null;
@@ -209,25 +222,38 @@
   clearTimeout(wheelGestureTimer);wheelGestureTimer=setTimeout(()=>{wheelConsumed=false;wheelPaneGesture=false;},650);
   if(wheelPaneGesture){if(!pane&&e.cancelable)e.preventDefault();return;}
   if(wheelConsumed){if(e.cancelable)e.preventDefault();return;}
-  if(pane){wheelPaneGesture=true;return;}
+  if(pane&&!paneEdge(pane,Math.sign(e.deltaY))){wheelPaneGesture=true;return;}
   if(e.cancelable)e.preventDefault();
   if(Math.abs(e.deltaX)>Math.abs(e.deltaY))return;
   wheelConsumed=true;pageHome(Math.sign(e.deltaY));
  },{passive:false});
  window.addEventListener('touchstart',e=>{
-  if(!homePaging()||editing(e.target)||e.target.closest('[data-guestbook-scroll]')||e.touches.length!==1){touchGesture=null;return;}
-  touchGesture={x:e.touches[0].clientX,y:e.touches[0].clientY,used:false};
+  if(!homePaging()||editing(e.target)||e.touches.length!==1){touchGesture=null;return;}
+  const pane=e.target.closest('[data-guestbook-scroll]');
+  touchGesture={x:e.touches[0].clientX,y:e.touches[0].clientY,used:false,native:false,pane,atStart:pane&&paneEdge(pane,-1),atEnd:pane&&paneEdge(pane,1)};
  },{passive:true});
  window.addEventListener('touchmove',e=>{
-  if(!touchGesture||!homePaging()||e.touches.length!==1)return;
+  if(!touchGesture||touchGesture.native||!homePaging()||e.touches.length!==1)return;
   const dy=touchGesture.y-e.touches[0].clientY,dx=touchGesture.x-e.touches[0].clientX;
   if(touchGesture.used){if(e.cancelable)e.preventDefault();return;}
-  if(Math.abs(dy)>=8&&Math.abs(dy)>Math.abs(dx)*1.15){if(e.cancelable)e.preventDefault();touchGesture.used=true;pageHome(Math.sign(dy));}
+  if(Math.abs(dy)>=8&&Math.abs(dy)>Math.abs(dx)*1.15){
+   // A gesture that begins inside the list stays native until the finger lifts.
+   // Only a fresh gesture at an edge can turn the surrounding homepage.
+   if(touchGesture.pane&&!(dy>0?touchGesture.atEnd:touchGesture.atStart)){touchGesture.native=true;return;}
+   if(e.cancelable)e.preventDefault();touchGesture.used=true;pageHome(Math.sign(dy));
+  }
  },{passive:false});
  for(const event of ['touchend','touchcancel'])window.addEventListener(event,()=>{touchGesture=null;},{passive:true});
  window.addEventListener('scrollend',()=>{if(Math.abs(window.scrollY-sectionScrollTarget)<2)finishSectionScroll();},{passive:true});
  document.addEventListener('keydown',e=>{
-  if(e.target.closest('[data-guestbook-scroll]'))return;
+  const pane=e.target.closest('[data-guestbook-scroll]');
+  if(pane){
+   if(homePaging()&&e.target===pane&&['ArrowDown','ArrowUp','PageDown','PageUp',' '].includes(e.key)){
+    const direction=['ArrowUp','PageUp'].includes(e.key)||(e.key===' '&&e.shiftKey)?-1:1;
+    if(paneEdge(pane,direction)){e.preventDefault();if(!e.repeat)pageHome(direction);}
+   }
+   return;
+  }
   if(homePaging()&&!e.target.closest('a,button,input,textarea,select,[contenteditable="true"],[data-guestbook-scroll]')&&['ArrowDown','ArrowUp','PageDown','PageUp',' '].includes(e.key)){
    e.preventDefault();if(!e.repeat)pageHome(['ArrowUp','PageUp'].includes(e.key)||(e.key===' '&&e.shiftKey)?-1:1);
   }else if(['ArrowUp','ArrowDown','PageUp','PageDown','Home','End',' '].includes(e.key))cancelSectionScroll();
@@ -249,7 +275,8 @@
    const response=await fetch('./content/posts.json?read='+Date.now().toString(36),{cache:'no-store',signal:controller.signal});
    if(!response.ok)throw new Error('Content unavailable');
    const text=await response.text();if(text.length>8000000)throw new Error('Content too large');
-   const manifest=window.BlogArticle.validateManifest(JSON.parse(text),blog.categories);
+   const contentDoc=JSON.parse(text),manifest=window.BlogArticle.validateManifest(contentDoc,blog.categories);
+   try{blog.profile=window.BlogProfile.fromDocument(contentDoc);updateProfileView();}catch{console.warn('个人简介格式暂不可用，已保留本地资料。');}
    blog.posts=manifest.posts;contentState='published';document.body.dataset.contentSource='published';
   }catch{
    contentState='backup';document.body.dataset.contentSource='backup';

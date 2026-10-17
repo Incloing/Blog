@@ -9,16 +9,33 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' blob: data:; connect-src 'self' https://api.github.com; object-src 'none'; base-uri 'none'; form-action 'self'; frame-src 'none'">
   <title>写作 · Incloing</title>
   <link rel="icon" href="../assets/avatar.webp">
-  <link rel="stylesheet" href="./admin.css?v=light-20261017-r12">
+  <link rel="stylesheet" href="./admin.css?v=light-20261017-r13">
   <script defer src="../assets/vendor/marked.min.js"></script>
   <script defer src="../assets/vendor/purify.min.js"></script>
-  <script defer src="../lib/article.js?v=light-20261017-r12"></script>
-  <script defer src="./github.js?v=light-20261017-r12"></script>
-  <script defer src="./admin.js?v=light-20261017-r12"></script>
+  <script defer src="../lib/article.js?v=light-20261017-r13"></script>
+  <script defer src="../content.js?v=light-20261017-r13"></script>
+  <script defer src="../lib/profile.js?v=light-20261017-r13"></script>
+  <script defer src="./profile.js?v=light-20261017-r13"></script>
+  <script defer src="./github.js?v=light-20261017-r13"></script>
+  <script defer src="./gate.js?v=light-20261017-r13"></script>
 </head>
 <body>
-  <a class="skip" href="#title">开始写作</a>
   <div class="ambient" aria-hidden="true"></div>
+  <main id="writer-lock" class="writer-lock">
+    <form id="unlock-form" class="unlock-card glass">
+      <img src="../assets/avatar.webp" alt="Incloing 的头像" width="64" height="64">
+      <p class="eyebrow">INCLOING · WRITING SPACE</p><h1>留给自己的写作空间。</h1>
+      <p class="unlock-copy">输入后台密码，继续写下你的故事。</p>
+      <label for="writer-password">后台密码</label><input id="writer-password" type="password" autocomplete="current-password" required maxlength="128" placeholder="请输入密码">
+      <p id="unlock-error" class="form-error" role="alert"></p>
+      <button id="unlock-button" type="submit" class="primary full-button">解锁写作空间</button>
+      <a class="unlock-home" href="../">回到个人主页 ↗</a>
+      <p class="unlock-note">发布内容还需验证站主 GitHub 授权。</p>
+    </form>
+    <noscript>请开启 JavaScript 后解锁写作空间。</noscript>
+  </main>
+  <div id="writer-shell" hidden inert>
+  <a class="skip" href="#title">开始写作</a>
   <header class="app-header">
     <a class="brand" href="../" aria-label="返回 Incloing 主页">Incloing<span>·</span><small>写作空间</small></a>
     <div class="header-actions"><a class="home-link" href="../">查看网站 <span aria-hidden="true">↗</span></a><button type="button" id="connect-button" class="glass connection-button"><span class="connection-dot"></span><span id="connection-label">连接 GitHub</span></button></div>
@@ -27,6 +44,7 @@
     <aside class="library glass" aria-label="文章与草稿">
       <div class="library-heading"><div><p class="eyebrow">A LITTLE PLACE TO WRITE</p><h1>把想法留下来<span>。</span></h1></div><img class="owner-avatar" src="../assets/avatar.webp" alt="Incloing 头像" width="44" height="44"></div>
       <button type="button" id="new-button" class="primary new-button"><span aria-hidden="true">＋</span> 新建文章</button>
+      <button type="button" id="profile-open" class="secondary profile-open">编辑个人简介 <span aria-hidden="true">↗</span></button>
       <div class="library-tabs" role="tablist" aria-label="文章来源"><button type="button" id="drafts-tab" role="tab" aria-selected="true" aria-controls="library-list" data-library="drafts">本机草稿 <span id="draft-count">0</span></button><button type="button" id="posts-tab" role="tab" aria-selected="false" aria-controls="library-list" data-library="posts">已发布 <span id="post-count">0</span></button></div>
       <div class="list-top"><p id="library-caption">仅保存在当前浏览器</p><div class="list-actions"><button type="button" id="import-button" class="quiet small-button">导入备份</button><button type="button" id="refresh-button" class="quiet small-button" hidden>刷新</button></div></div><input id="import-input" type="file" accept="application/json,.json" hidden>
       <div id="library-list" class="library-list" role="tabpanel" aria-labelledby="drafts-tab" tabindex="0"></div>
@@ -52,8 +70,20 @@
     </main>
   </div>
   <footer class="app-footer"><span>Incloing · 记录，探索，慢慢生长。</span></footer>
+  <dialog id="profile-dialog" class="glass modal profile-modal" aria-labelledby="profile-heading">
+    <div class="dialog-top"><div><p class="eyebrow">A LITTLE ABOUT ME</p><h2 id="profile-heading">我的个人简介</h2></div><button id="profile-close" type="button" class="close-button" aria-label="关闭个人简介">×</button></div>
+    <p class="dialog-copy">文字会自动暂存在本机，点击保存后更新到主页。</p>
+    <form id="profile-form" novalidate>
+      <div class="profile-details"><label for="profile-school">学校<input id="profile-school" type="text" maxlength="100" autocomplete="off"></label><label for="profile-major">专业<input id="profile-major" type="text" maxlength="100" autocomplete="off"></label><label for="profile-qq">QQ 号<input id="profile-qq" type="text" inputmode="numeric" maxlength="12" autocomplete="off"></label></div>
+      <label class="profile-bio-label" for="profile-bio">自我介绍 <span id="profile-count">0 / 3000</span></label><textarea id="profile-bio" rows="7" maxlength="3000" placeholder="介绍一下自己，或记录最近感兴趣的事……"></textarea>
+      <p class="profile-note">直接写文字即可，支持换行。长简介会在“关于我”页面完整展示。</p>
+      <div class="profile-buttons"><button id="profile-load" type="button" class="quiet">载入线上简介</button><button id="profile-save" type="submit" class="primary">保存并更新主页 ↗</button></div>
+    </form>
+    <p id="profile-status" class="publish-status" role="status" aria-live="polite"></p><a class="profile-view" href="../#/about" target="_blank" rel="noopener noreferrer">查看我的介绍 ↗</a>
+  </dialog>
   <dialog id="connect-dialog" class="glass modal"><div class="dialog-top"><div><p class="eyebrow">ONE CONNECTION, YOUR WORDS</p><h2>连接写作空间</h2></div><button type="button" class="close-button" data-close="connect-dialog" aria-label="关闭">×</button></div><p class="dialog-copy">使用仅能访问 <strong>Incloing/Blog</strong> 的 GitHub 令牌。令牌只留在当前页面的内存中，刷新或断开连接后需要重新填写。</p><div id="connected-panel" hidden><p id="connected-user"></p><button type="button" id="disconnect-button" class="secondary">断开连接</button></div><form id="connect-form"><ol class="connection-steps"><li><a href="https://github.com/settings/personal-access-tokens/new?name=Incloing+Blog+Writer&amp;target_name=Incloing&amp;expires_in=90&amp;contents=write" target="_blank" rel="noopener noreferrer">在 GitHub 创建细粒度令牌 ↗</a></li><li>Repository access 选择 <strong>Only select repositories</strong>，仅勾选 <strong>Blog</strong>。</li><li>Repository permissions 的 <strong>Contents</strong> 设置为 <strong>Read and write</strong>，生成后复制到下方。</li></ol><label class="token-label" for="github-token">GitHub 访问令牌</label><input id="github-token" type="password" name="github-token" autocomplete="off" spellcheck="false" autocapitalize="off" placeholder="github_pat_…" required><p class="token-note">请勿把令牌发到聊天里。此处不会保存令牌，也不会写入仓库。</p><p id="connect-error" class="form-error" role="alert"></p><button type="submit" id="connect-submit" class="primary full-button">连接 GitHub</button></form></dialog>
   <dialog id="confirm-dialog" class="glass modal compact-modal"><div class="dialog-top"><h2 id="confirm-title">删除本机草稿？</h2></div><p id="confirm-description" class="dialog-copy">这只会删除当前浏览器内的草稿，网站上已发布的文章会保留。</p><div class="confirm-actions"><button type="button" id="confirm-cancel" class="secondary">取消</button><button type="button" id="confirm-ok" class="primary">删除草稿</button></div></dialog>
   <div id="toast" class="toast glass" role="status" aria-live="polite"></div><div id="click-layer" class="click-layer" aria-hidden="true"></div>
+  </div>
 </body>
 </html>

@@ -127,7 +127,7 @@
   function setBusy(value) {
     busy=value;document.body.classList.toggle('is-publishing',value);
     for(const item of $('article-form').elements)item.disabled=value;
-    $('new-button').disabled=value;$('connect-button').disabled=value;$('refresh-button').disabled=value;$('import-button').disabled=value;
+    $('profile-open').disabled=value;$('new-button').disabled=value;$('connect-button').disabled=value;$('refresh-button').disabled=value;$('import-button').disabled=value;
     for(const button of document.querySelectorAll('.library-tabs button,.entry'))button.disabled=value;
   }
   async function publish(event) {
@@ -315,6 +315,7 @@
   document.addEventListener('visibilitychange',()=>{if(document.hidden&&dirty)void saveDraft({quiet:true});});
   window.addEventListener('pagehide',()=>{client?.disconnect?.();});
   window.addEventListener('pageshow',event=>{if(event.persisted&&client)disconnect();});
+  window.BlogProfileEditor.init({getClient:()=>client,requestConnect:()=>{$('connect-dialog').showModal();$('github-token').focus();}});
   setEditor(freshDraft());
   refreshDrafts().then(()=>{if(drafts.length&&!dirty){setEditor(drafts[0]);saveState('已恢复本机草稿');toast('已恢复最近编辑的草稿');}}).catch(error=>{saveState('本机存储不可用，请导出备份',true);toast(errorMessage(error));});
 })();

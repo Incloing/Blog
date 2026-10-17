@@ -32,7 +32,7 @@
  function base64Blob(blob){return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result).split(',')[1]);reader.onerror=()=>reject(new WriterError('图片读取失败，请重新选择。','IMAGE'));reader.readAsDataURL(blob);});}
  class GitHubClient{
   #token;#busy=false;
-  constructor(token){this.#token=token;this.posts=[];this.user=null;}
+  constructor(token){this.#token=token;this.posts=[];this.profile=window.BlogProfile.defaults();this.user=null;}
   disconnect(){this.#token='';this.posts=[];this.user=null;}
   async request(method,path,data){
    if(path!=='/user'&&!path.startsWith(REPO+'/')&&path!==REPO)throw new WriterError('不允许访问其他仓库。','SCOPE');
@@ -60,7 +60,28 @@
    let document;try{document=documentFrom(JSON.parse(decode64(source.content)));}catch(error){if(error instanceof WriterError)throw error;throw new WriterError('文章目录读取失败，请保留草稿。','FORMAT');}
    return {head,tree:commit.tree.sha,document};
   }
-  async refresh(){const snapshot=await this.snapshot();this.posts=copy(snapshot.document.posts);return this.posts;}
+  async refresh(){const snapshot=await this.snapshot();this.posts=copy(snapshot.document.posts);this.profile=window.BlogProfile.fromDocument(snapshot.document);return this.posts;}
+  async publishProfile(value,baseProfile,onProgress=()=>{}){
+   if(this.#busy)throw new WriterError('正在保存，请等待当前操作完成。','BUSY');
+   this.#busy=true;
+   try{
+    const profile=window.BlogProfile.normalize(value);
+    onProgress('检查最新个人简介…');
+    const snapshot=await this.snapshot(),latest=window.BlogProfile.fromDocument(snapshot.document);
+    if(stable(latest)!==stable(window.BlogProfile.normalize(baseProfile)))throw new WriterError('个人简介已在其他页面修改。请先保留本机文字，再重新载入线上简介后合并。','CONFLICT');
+    const revision='profile-'+Date.now().toString(36)+'-'+crypto.randomUUID().slice(0,8);
+    const document={...snapshot.document,profile,profileUpdatedAt:new Date().toISOString(),revision};
+    onProgress('保存个人简介…');
+    const tree=await this.request('POST',REPO+'/git/trees',{base_tree:snapshot.tree,tree:[{path:MANIFEST,mode:'100644',type:'blob',content:JSON.stringify(document,null,2)+'\n'}]});
+    if((await this.request('GET',REPO+'/git/ref/heads/main')).object.sha!==snapshot.head)throw new WriterError('保存期间仓库有新修改，请再次保存以合并最新内容。文字仍在本机。','CONFLICT');
+    const identity={name:'Incloing',email:'259068355+Incloing@users.noreply.github.com'};
+    const commit=await this.request('POST',REPO+'/git/commits',{message:'Update personal profile',tree:tree.sha,parents:[snapshot.head],author:identity,committer:identity});
+    try{await this.request('PATCH',REPO+'/git/refs/heads/main',{sha:commit.sha,force:false});}
+    catch(error){let current;try{current=(await this.request('GET',REPO+'/git/ref/heads/main')).object.sha;}catch{}if(current!==commit.sha)throw error;}
+    this.profile=copy(profile);this.posts=copy(snapshot.document.posts);
+    return {commit:commit.sha,revision,profile:copy(profile)};
+   }finally{this.#busy=false;}
+  }
   async publish(value,images=[],basePost=null,onProgress=()=>{}){
    if(this.#busy)throw new WriterError('正在发布，请等待当前操作完成。','BUSY');
    this.#busy=true;
@@ -98,7 +119,7 @@
      let current;try{current=(await this.request('GET',REPO+'/git/ref/heads/main')).object.sha;}catch{}
      if(current!==commit.sha)throw error;
     }
-    this.posts=copy(posts);
+    this.posts=copy(posts);this.profile=window.BlogProfile.fromDocument(snapshot.document);
     return {commit:commit.sha,revision,post:copy(post),posts:copy(posts)};
    }finally{this.#busy=false;}
   }

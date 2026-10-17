@@ -38,13 +38,14 @@
 .guestbook-scroll{min-width:0;overscroll-behavior:contain;touch-action:pan-y pinch-zoom;scrollbar-width:thin;scrollbar-color:#aebfa5 transparent}
 .guestbook-scroll:focus-visible{outline:2px solid #8ba183;outline-offset:5px;border-radius:14px}
 .guestbook-scroll .guestbook-list{margin-top:0}
-.guestbook-section{height:100svh;align-items:stretch}
-.guestbook-section .guestbook-card{display:flex;flex-direction:column;height:100%;min-height:0;max-width:930px}
+.guestbook-section{height:100svh;align-items:center;flex-direction:column;gap:18px;padding-bottom:24px}
+.guestbook-section .guestbook-card{display:flex;flex-direction:column;flex:0 1 auto;max-height:100%;min-height:0;max-width:930px}
 .guestbook-section .guestbook-card>h2,.guestbook-section .guestbook-actions,.guestbook-section .guestbook-note{flex-shrink:0}
-.guestbook-section .guestbook-scroll{flex:1 1 auto;min-height:70px;overflow:auto;overflow-x:hidden;scrollbar-gutter:stable;margin-top:22px;padding-right:5px}
+.guestbook-section .guestbook-scroll{flex:1 1 auto;height:32svh;min-height:60px;overflow:auto;overflow-x:hidden;scrollbar-gutter:stable;margin-top:22px;padding-right:5px}
+.guestbook-continue{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:40px;flex-shrink:0;font-size:11px;color:var(--muted)}
 .guestbook-section .guestbook-full .guestbook-message{padding:15px 17px}
 .guestbook-section .guestbook-full .guestbook-message p{font-size:13px;line-height:1.9}
 .guestbook-section .guestbook-more{margin-top:16px}
 .guestbook-section .guestbook-more .pill-link{font-size:11px;min-height:40px;padding:8px 16px}
-@media(max-width:700px){.guestbook-section .guestbook-scroll{margin-top:18px}.guestbook-section .guestbook-full .guestbook-message{padding:13px 14px}.guestbook-section .guestbook-full .guestbook-message p{font-size:12px;line-height:1.9}}
+@media(max-width:700px){.guestbook-section{gap:10px;padding-top:140px}.guestbook-section .guestbook-card{padding:22px 20px}.guestbook-section .guestbook-scroll{margin-top:16px;height:27svh}.guestbook-section .guestbook-full .guestbook-message{padding:13px 14px}.guestbook-section .guestbook-full .guestbook-message p{font-size:12px;line-height:1.9}}
 @media(max-height:520px) and (orientation:landscape){.guestbook-card>.community-kicker,.guestbook-card>.community-subtitle{display:none}.guestbook-card h2{font-size:22px}.guestbook-section .guestbook-actions{margin-top:8px}.guestbook-section .guestbook-scroll{margin-top:12px;min-height:65px}.guestbook-section .guestbook-full .guestbook-message{padding:10px 13px}}
