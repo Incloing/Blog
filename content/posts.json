@@ -1,10 +1,10 @@
 {
   "version": 1,
-  "revision": "profile-mvc7k3p9-8a79f13d",
+  "revision": "pub-mvc7kz5j-78f2bf5c",
   "posts": [
     {
       "id": "hello-world",
-      "title": "给自己留一小块互联网",
+      "title": "买枪皮了",
       "category": "life",
       "date": "2026-10-17",
       "tags": [
@@ -14,7 +14,7 @@
       "markdown": "![Screenshot_20261016_083318_com_tencent_apps_valorant_MainZoneHomeActivity](./assets/uploads/hello-world/3024b324-8778-4e20-b195-5f41717603fe.webp)\n\n![Screenshot_20261016_085456_com_tencent_apps_valorant_RNHostActivity](./assets/uploads/hello-world/73bdbc8a-4e24-46c9-ab16-03f9a30bb5a9.webp)\n等了很久的正义皮肤终于出了，毫不犹豫直接拿下，钱包痛失129😭",
       "demo": false,
       "createdAt": "2026-10-17T09:37:56.900Z",
-      "updatedAt": "2026-10-17T09:37:56.900Z"
+      "updatedAt": "2026-10-17T09:43:07.205Z"
     },
     {
       "id": "learning-map",
