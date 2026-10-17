@@ -5,6 +5,14 @@ window.BLOG = {
   // 首次成功开通 GitHub Pages 的时间，更新网站时请不要重置。
   startedAt: '2026-10-17T02:34:10Z',
   profile: { school: '东北林业大学', major: '人工智能', qq: '', bio: '' },
+  // 填入本人在各平台的个人主页完整链接。留空时显示待补充状态。
+  social: [
+    { id: 'github', label: 'GitHub', href: 'https://github.com/Incloing' },
+    { id: 'xiaohongshu', label: '小红书', href: '' },
+    { id: 'x', label: 'X', href: '' },
+    { id: 'instagram', label: 'Instagram', href: '' },
+    { id: 'facebook', label: 'Facebook', href: '' }
+  ],
   tagline: '记录，探索，慢慢生长。',
   intro: '你好，我是 Incloing。\n这里记录学习、创造，和日常的小小发现。',
   about: ['你好，我是 Incloing，欢迎来到我的个人空间。', '我想在这里整理学习的过程，保存做过的项目，也记下一些日常的片刻。它会随着新的经历和想法，慢慢变得丰富。', '这里刚刚开始搭建，文章和项目目前是供预览结构的示例。之后会替换成我的真实记录。'],

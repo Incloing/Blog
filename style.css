@@ -67,3 +67,55 @@ html,body,main{scroll-snap-type:none}
 @media(min-width:701px){.category-section{padding-top:170px}}
 /* Each homepage scene occupies a page; interior reading pages stay continuous. */
 .home-paging .category-section{min-height:100svh}
+/* Let our homepage controller own vertical gestures; dialogs and reading pages stay native. */
+.home-paging #main,.home-paging .site-header,.home-paging .site-footer{touch-action:pan-x pinch-zoom}
+/* Fit each scene on short screens so a gesture always advances to the next named scene. */
+@media(max-height:700px){
+ .home-paging .about-section{padding:132px 24px 24px;min-height:100svh}
+ .home-paging .section-kicker,.home-paging .about-next{display:none}
+ .home-paging .avatar-wrap{padding:5px;margin-bottom:10px}
+ .home-paging .avatar-wrap img{width:56px;height:56px}
+ .home-paging .about-title{font-size:24px}
+ .home-paging .about-tagline{font-size:11px;margin-top:6px}
+ .home-paging .profile-facts{margin-top:16px;padding-bottom:42px;gap:14px}
+ .home-paging .fact-button{width:44px;height:44px}
+ .home-paging .fact-pop{top:53px}
+ .home-paging .bio-placeholder{padding:10px 12px;font-size:12px}
+ .home-paging .bio-placeholder span{font-size:10px;margin-top:3px}
+}
+@media(max-height:520px) and (orientation:landscape){
+ .home-paging .about-section{padding:132px 24px 20px}
+ .home-paging .about-inner{display:grid;grid-template-columns:90px minmax(0,1fr);column-gap:24px;align-items:center;text-align:left;width:min(100%,560px)}
+ .home-paging .avatar-wrap{grid-column:1;grid-row:1/4;margin:0;justify-self:center}
+ .home-paging .avatar-wrap img{width:70px;height:70px}
+ .home-paging .about-title{grid-column:2;grid-row:1}
+ .home-paging .about-tagline{grid-column:2;grid-row:2}
+ .home-paging .profile-facts{grid-column:2;grid-row:3;justify-content:flex-start;margin-top:12px;padding-bottom:40px}
+ .home-paging .bio-placeholder{grid-column:1/-1;grid-row:4;width:100%;margin-top:8px;padding:8px 12px;font-size:11px}
+ .home-paging .bio-placeholder span{display:none}
+ .home-paging .category-section{padding:132px max(6vw,24px) 22px}
+ .home-paging .category-copy{padding:16px 24px}
+ .home-paging .category-copy .section-no{font-size:9px;margin-bottom:8px}
+ .home-paging .category-copy h2{font-size:30px}
+ .home-paging .category-english{font-size:9px;margin-top:5px}
+ .home-paging .category-desc{font-size:12px;line-height:2;margin:10px 0 14px}
+ .home-paging .pill-link{min-height:38px;padding:7px 18px;font-size:11px}
+ .home-paging .section-edge{bottom:8px;font-size:8px}
+}
+@media(max-height:360px) and (orientation:landscape){
+ .home-paging .about-section,.home-paging .category-section{padding-top:120px;padding-bottom:12px}
+ .home-paging .about-title{font-size:20px}.home-paging .about-tagline{font-size:10px;margin-top:3px}
+ .home-paging .profile-facts{margin-top:6px;padding-bottom:32px}.home-paging .fact-button{width:38px;height:38px}
+ .home-paging .fact-pop{top:42px}.home-paging .bio-placeholder{margin-top:5px;padding:6px 12px}
+ .home-paging .category-desc{display:none}.home-paging .category-english{margin-bottom:12px}
+}
+.social-links{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;margin:27px auto 0}
+.social-link{display:grid;place-items:center;width:46px;height:46px;border-radius:50%;color:var(--ink);transition:transform .25s var(--ease),background .25s}
+.social-link img{width:22px;height:22px;object-fit:contain;opacity:.72;pointer-events:none}
+.social-link:active{transform:scale(.94)}
+.social-tooltip{position:absolute;bottom:calc(100% + 9px);left:50%;transform:translate(-50%,4px);padding:4px 10px;background:#fffffff2;border:1px solid white;border-radius:10px;box-shadow:0 3px 10px #344b3710;white-space:nowrap;font-size:11px;line-height:1.8;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .2s,transform .2s}
+.social-link:focus-visible .social-tooltip{opacity:1;visibility:visible;transform:translate(-50%,0)}
+.site-footer .social-status{min-height:0;margin:0;letter-spacing:0;font-size:11px}
+.site-footer .social-status:not(:empty){margin-top:14px}
+@media(hover:hover) and (pointer:fine){.social-link:hover{transform:translateY(-3px);background:#ffffffc9}.social-link:hover .social-tooltip{opacity:1;visibility:visible;transform:translate(-50%,0)}}
+@media(max-width:359px){.social-links{gap:11px}.social-link{width:44px;height:44px}.social-link img{width:20px;height:20px}}

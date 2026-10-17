@@ -35,3 +35,7 @@ Final prompt:
 - Outfit、Noto Sans SC：Google Fonts，SIL Open Font License，许可证位于 `assets/fonts/`。
 - Material Symbols Rounded：Google Material Symbols，Apache 2.0，许可证位于 `assets/fonts/`。按实际图标名称提取子集并自托管。
 - QQ 联络图标为代码内联的简笔轮廓。
+
+## 页脚社交图标
+
+GitHub、X、Instagram、Facebook 图标来自 [Bootstrap Icons](https://github.com/twbs/icons)，MIT 许可证；小红书图标来自 [Simple Icons](https://github.com/simple-icons/simple-icons)，CC0。图标及许可证已保存到 `assets/social/`。
