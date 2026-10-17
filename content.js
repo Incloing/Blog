@@ -1,13 +1,17 @@
 // 在这里修改主页介绍、栏目与内容。示例内容可直接删除，新增文章使用唯一 id。
 window.BLOG = {
   name: 'Incloing',
+  heroText: '把日子写成诗，\n把好奇留给远方。',
+  // 首次成功开通 GitHub Pages 的时间，更新网站时请不要重置。
+  startedAt: '2026-10-17T02:34:10Z',
+  profile: { school: '东北林业大学', major: '人工智能', qq: '', bio: '' },
   tagline: '记录，探索，慢慢生长。',
   intro: '你好，我是 Incloing。\n这里记录学习、创造，和日常的小小发现。',
   about: ['你好，我是 Incloing，欢迎来到我的个人空间。', '我想在这里整理学习的过程，保存做过的项目，也记下一些日常的片刻。它会随着新的经历和想法，慢慢变得丰富。', '这里刚刚开始搭建，文章和项目目前是供预览结构的示例。之后会替换成我的真实记录。'],
   categories: [
-    { id: 'notes', title: '学习笔记', english: 'LEARN & CONNECT', icon: '↗', description: '把零散的知识，连成自己的地图。', color: 'sage' },
-    { id: 'projects', title: '项目', english: 'MAKE & EXPLORE', icon: '⌘', description: '从一个念头，到可以触摸的作品。', color: 'sand' },
-    { id: 'life', title: '生活随笔', english: 'LIVE & NOTICE', icon: '✳', description: '收集日常里，那些值得停留的片刻。', color: 'rose' }
+    { id: 'notes', title: '学习笔记', english: 'LEARN & CONNECT', subtitle: 'IDEAS, ONE NOTE AT A TIME', description: '把零散的知识，连成自己的地图。', artAlt: 'Google Cloud 原始报告中的浅蓝色粒子云' },
+    { id: 'projects', title: '项目', english: 'MAKE & EXPLORE', subtitle: 'FROM A THOUGHT TO SOMETHING REAL', description: '从一个念头，到可以触摸的作品。', artAlt: 'Google Cloud 原始报告中的流动金色雕塑' },
+    { id: 'life', title: '生活随笔', english: 'LIVE & NOTICE', subtitle: 'LITTLE MOMENTS, KEPT HERE', description: '收集日常里，那些值得停留的片刻。', artAlt: 'Google Cloud 原始报告中的绿色自然形态' }
   ],
   posts: [
     {id:'hello-world', category:'life', title:'给自己留一小块互联网', date:'2026-10-17', tags:['建站手记','新的开始'], demo:true, pinned:true, excerpt:'把想法慢慢写下来，把散落的记录放在一起。这个小小的站点，就从这里开始。', body:[{heading:'一个可以慢慢生长的地方',text:'这是网站第一篇示例文章。你可以把这里改成建站的初衷，也可以写下一段最近想说的话。个人主页不需要一开始就有完整答案，重要的是有一个愿意回来的地方。'},{heading:'这里会放什么',text:'学习笔记用来整理知识，项目栏目记录从想法到实现的过程，生活随笔留给那些不必急着归类的念头。'},{heading:'写给未来的自己',text:'这一段可以换成你对未来的期待。文章支持段落、小标题和标签，后续可以继续增加内容。'}]},

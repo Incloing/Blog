@@ -1,43 +1,45 @@
 # Incloing
 
-Incloing 的个人主页，包含关于我、学习笔记、项目与生活随笔。
+[访问个人主页](https://incloing.github.io/Blog/)
 
-网站：[https://incloing.github.io/Blog/](https://incloing.github.io/Blog/)
+浅色个人主页：风景背景与打字欢迎语、同一风景虚化的个人介绍、依次展开的学习笔记 / 项目 / 生活随笔。首页只展示分类入口，文章在分类内查看。
 
-采用深色的大幅材质画面与液态玻璃风格界面，支持平滑滚动、页面转场、指针高光、卡片轻微倾斜和点击光环。手机端使用底部导航与原生横向滑动卡片，触屏保留原生滚动。开启系统的“减少动态效果”后，平滑滚动和装饰性动效会自动关闭。
+左上角固定目录按钮，打开后展示头像和大类导航。学校、专业、QQ 用图标呈现，支持触摸点击和键盘查看。配有液滴转圈加载、透明玻璃边框、点击光晕和实时运行时间。手机使用原生惯性滑动；页面没有滚轮接管、底部固定导航或强制整屏吸附。系统开启“减少动态效果”时，关闭打字和装饰动效。
 
-## 预览
+## 本地预览
 
-直接用浏览器打开 `index.html`，或在仓库根目录运行：
+无需安装依赖或构建，在仓库根目录运行：
 
 ```sh
 python -m http.server 4173
 ```
 
-打开 `http://localhost:4173`。无需安装依赖，也无需构建。
+打开 `http://localhost:4173`。所有实际使用的字体、图片和图标都在本站托管。
 
-## 修改内容
+## 更新个人内容
 
-- `content.js`：首页介绍、关于我、分类、文章和项目。
-- `style.css`：配色、字体、桌面与手机布局。
-- `app.js`：导航、筛选、搜索、归档和主题切换。
-- `assets/hero-glass.webp`、`assets/cover-*.webp`：原创生成的视觉素材。
-- `assets/fonts/`：本站使用的字体和 Google Material Symbols 图标，附许可证。
-- `assets/vendor/`：固定版本 Lenis 1.3.27 的平滑滚动库，附 MIT 许可证。
+编辑 `content.js`：
 
-初始文章与项目均为已标注的示例，发布自己的内容前请替换或删除。文章使用唯一的 `id`，`category` 为 `notes`、`projects` 或 `life`，日期使用 `YYYY-MM-DD`。`body` 是包含 `heading` 和 `text` 的段落数组。真实内容请将 `demo` 设为 `false`。
+- `heroText`：首屏文案，使用 `\n` 换行。目前为暂定文案。
+- `profile.school` / `profile.major`：东北林业大学 / 人工智能。
+- `profile.qq` / `profile.bio`：目前留空，填入后自动展示。
+- `categories`：大类名称、说明。
+- `posts`：文章与项目。现有内容均标注为示例，请替换为真实记录；真实内容设置 `demo: false`。
+- `startedAt`：首次成功开通 GitHub Pages 的时间 `2026-10-17T02:34:10Z`，改版时保持不变。
 
-## 功能
+头像为 `assets/avatar.webp`，使用站主提供的原图，保留完整画面并转换为 WebP。首屏桌面与手机分别使用 `hero-pastel.webp` / `hero-pastel-mobile.webp`。背景与分类素材来源见 [ASSETS.md](./ASSETS.md)。
 
-- 响应式布局与深浅色主题，当前浏览器记住主题偏好。
-- 分类列表、项目详情、文章详情、关于我和按年归档。
-- 搜索标题、标签和正文，快捷键 `/` 或 `Ctrl/Cmd+K`。
-- 图片、字体、图标和脚本均随网站托管，浏览时不需要访问第三方 CDN。
+## 主要文件
 
-这是静态网站，没有登录、评论或在线编辑后台；修改源文件后再更新托管版本。
+- `index.html`：页面框架、目录、搜索、加载动画。
+- `app.js`：路由、分类筛选、搜索、打字、运行计时、弹层与滚动位置。
+- `style.css`：浅色玻璃效果、响应式布局和动效。
+- `assets/fonts/`：Outfit、Noto Sans SC、Material Symbols 与许可证。
 
-## GitHub Pages
+文章使用唯一 `id`，分类为 `notes`、`projects`、`life`，日期为 `YYYY-MM-DD`；正文是含 `heading` 和 `text` 的数组。静态网站没有登录或在线编辑后台。
 
-如需通过 GitHub Pages 托管，可以将这些文件放在仓库根目录，然后在仓库的 Settings → Pages 中选择从 `main` 分支的根目录发布。是否可用取决于仓库可见性、账号套餐及仓库设置。
+## 发布
 
-`.nojekyll` 表示直接提供静态文件。仓库地址与网站访问地址不同，启用托管后以 GitHub Pages 返回的地址为准。
+GitHub Pages 从 `main` 分支根目录直接发布，`.nojekyll` 保留。更新 CSS / JS 后同步修改 `index.html` 的版本参数；更新字体后同步修改 CSS 中字体版本参数，以便手机取得新资源。当前版本 `light-20261017-r1`。旧版素材保留于 Git 历史及原文件中，新页面不会加载旧版滚动库。
+
+主要检查：多种手机宽度与横屏、目录焦点及背景锁定、关闭弹层后位置恢复、浏览器返回、图标点击、分类筛选、搜索、运行计时、减少动态效果，以及背景加载失败后的恢复。
