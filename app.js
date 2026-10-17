@@ -36,9 +36,9 @@
   const box=card.getBoundingClientRect();
   if(box.top>window.innerHeight*.92||box.bottom<125)return;
   pendingFlip=null;flipAnimation?.cancel();
-  card.style.transformOrigin=direction>0?'right center':'left center';
+  card.style.transformOrigin=direction>0?'left center':'right center';
   flipAnimation=card.animate([
-   {transform:`perspective(1100px) translateX(${direction>0?22:-22}px) rotateY(${direction>0?-58:58}deg)`,opacity:.12},
+   {transform:`perspective(1100px) translateX(${direction>0?-22:22}px) rotateY(${direction>0?58:-58}deg)`,opacity:.12},
    {transform:'perspective(1100px) translateX(0) rotateY(0deg)',opacity:1}
   ],{duration:850,easing:'cubic-bezier(.22,1,.36,1)',fill:'none'});
  }

@@ -34,7 +34,7 @@ Final prompt:
 
 - Outfit、Noto Sans SC：Google Fonts，SIL Open Font License，许可证位于 `assets/fonts/`。
 - Material Symbols Rounded：Google Material Symbols，Apache 2.0，许可证位于 `assets/fonts/`。按实际图标名称提取子集并自托管。
-- QQ 联络图标 `assets/qq-official.png` 来自 [腾讯 QQ 官网](https://im.qq.com/index) 实际使用的[企鹅标识资源](https://static-res.qq.com/static-res/imqq/qq-logo.png)，保持原始图片，标识权利归腾讯所有。
+- QQ 联络图标 `assets/qq-official.png` 来自 [腾讯 QQ 官网](https://im.qq.com/index) 实际使用的[企鹅标识资源](https://static-res.qq.com/static-res/imqq/qq-logo.png)，原始图片保持不变，页面通过 CSS 显示为灰色，标识权利归腾讯所有。
 
 ## 页脚社交图标
 
