@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "revision": "writer-20261017-r10",
+  "revision": "profile-mvc5l5db-600f1a89",
   "posts": [
     {
       "id": "hello-world",
@@ -149,5 +149,12 @@
         }
       ]
     }
-  ]
+  ],
+  "profile": {
+    "school": "东北林业大学",
+    "major": "人工智能",
+    "qq": "3468692947",
+    "bio": "一名盲目的大学生，喜欢跑步，玩游戏，看电影，散步，希望交到与自己志趣相投的真心朋友"
+  },
+  "profileUpdatedAt": "2026-10-17T08:47:21.455Z"
 }
