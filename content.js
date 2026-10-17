@@ -2,7 +2,7 @@
 window.BLOG = {
   name: 'Incloing',
   tagline: '记录，探索，慢慢生长。',
-  intro: '你好，我是 Incloing。这里放着我的学习笔记、动手做的项目，\n还有一些平凡日子里的观察与想法。欢迎随意逛逛。',
+  intro: '你好，我是 Incloing。\n这里记录学习、创造，和日常的小小发现。',
   about: ['你好，我是 Incloing，欢迎来到我的个人空间。', '我想在这里整理学习的过程，保存做过的项目，也记下一些日常的片刻。它会随着新的经历和想法，慢慢变得丰富。', '这里刚刚开始搭建，文章和项目目前是供预览结构的示例。之后会替换成我的真实记录。'],
   categories: [
     { id: 'notes', title: '学习笔记', english: 'LEARN & CONNECT', icon: '↗', description: '把零散的知识，连成自己的地图。', color: 'sage' },
