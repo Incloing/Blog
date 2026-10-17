@@ -1,6 +1,6 @@
 @font-face{font-family:Outfit;src:url('./assets/fonts/outfit.woff2') format('woff2');font-weight:300 700;font-display:swap}
-@font-face{font-family:NotoUI;src:url('./assets/fonts/noto-ui.woff2?v=light-20261017-r11') format('woff2');font-weight:400 700;font-display:swap}
-@font-face{font-family:'Material Symbols Rounded';src:url('./assets/fonts/material-symbols.woff2?v=light-20261017-r11') format('woff2');font-weight:400;font-display:block}
+@font-face{font-family:NotoUI;src:url('./assets/fonts/noto-ui.woff2?v=light-20261017-r12') format('woff2');font-weight:400 700;font-display:swap}
+@font-face{font-family:'Material Symbols Rounded';src:url('./assets/fonts/material-symbols.woff2?v=light-20261017-r12') format('woff2');font-weight:400;font-display:block}
 .qq-icon{filter:grayscale(1);opacity:.62}
 :root{color-scheme:light;--ink:#29372f;--muted:#64736a;--line:rgba(52,72,57,.13);--paper:#f8f9f5;--green:#547d60;--ease:cubic-bezier(.22,1,.36,1)}
 *{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:100px;scrollbar-gutter:stable}body{margin:0;background:var(--paper);color:var(--ink);font:400 15px/1.85 Outfit,NotoUI,'PingFang SC','Microsoft YaHei',sans-serif;-webkit-font-smoothing:antialiased}body.modal-open{overflow:hidden}a{color:inherit;text-decoration:none}button,input{font:inherit;color:inherit}button{cursor:pointer;border:0}button,a{-webkit-tap-highlight-color:transparent;touch-action:manipulation}img{display:block;max-width:100%}button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #527360;outline-offset:5px}::selection{background:#cdded0}h1,h2,h3,p{margin:0}h1,h2,h3{font-weight:500;line-height:1.35}button,a{position:relative}main{min-height:65svh}main:focus{outline:none}.mi{font-family:'Material Symbols Rounded';font-weight:400;font-style:normal;font-size:24px;line-height:1;letter-spacing:normal;text-transform:none;display:inline-block;white-space:nowrap;word-wrap:normal;direction:ltr;font-feature-settings:'liga';-webkit-font-feature-settings:'liga';-webkit-font-smoothing:antialiased;flex-shrink:0}
@@ -69,7 +69,8 @@ html,body,main{scroll-snap-type:none}
 /* Each homepage scene occupies a page; interior reading pages stay continuous. */
 .home-paging .category-section{min-height:100svh}
 /* Let our homepage controller own vertical gestures; dialogs and reading pages stay native. */
-.home-paging #main,.home-paging .site-header,.home-paging .site-footer{touch-action:pan-x pinch-zoom}
+.home-paging #main{touch-action:auto}
+.home-paging #main>section:not(#guestbook),.home-paging .site-header,.home-paging .site-footer{touch-action:pan-x pinch-zoom}
 /* Fit each scene on short screens so a gesture always advances to the next named scene. */
 @media(max-height:700px){
  .home-paging .about-section{padding:132px 24px 24px;min-height:100svh}

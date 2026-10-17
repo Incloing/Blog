@@ -15,7 +15,7 @@
  let observer,typingTimer,bootReady=false,currentRoute='',lockedScroll=null,scrollFrame=0,saveTimer=0,routeToken=0,activeSection='',sectionScrollActive=false,sectionScrollTarget=0,sectionScrollTimer;
  let contentState='loading',lastMetricRoute='',pendingFlip=null,flipAnimation=null;
  const homeSections=['top','intro','category-notes','category-projects','category-life','visitors','guestbook'];
- let pageAnchorId='top',pageQueue=[],pageDrainFrame=0,wheelConsumed=false,wheelGestureTimer,touchGesture=null;
+ let pageAnchorId='top',pageQueue=[],pageDrainFrame=0,wheelConsumed=false,wheelPaneGesture=false,wheelGestureTimer,touchGesture=null;
  const editing=target=>target.closest('input,textarea,select,[contenteditable="true"]');
  function homePaging(){return Boolean(main.querySelector('.hero'))&&!document.querySelector('dialog[open]');}
  function startSectionScroll(top,id){
@@ -116,7 +116,7 @@
   const pill=nav.querySelector('.section-nav-indicator');pill.style.width=link.offsetWidth+'px';pill.style.transform=`translateX(${link.offsetLeft}px)`;
  }
  function render(top=0,focus=false){
-  cancelSectionScroll();clearTimeout(wheelGestureTimer);pageAnchorId='top';wheelConsumed=false;touchGesture=null;clearTimeout(saveTimer);clearTimeout(typingTimer);observer?.disconnect();closeAll();routeToken++;
+  cancelSectionScroll();clearTimeout(wheelGestureTimer);pageAnchorId='top';wheelConsumed=false;wheelPaneGesture=false;touchGesture=null;clearTimeout(saveTimer);clearTimeout(typingTimer);observer?.disconnect();closeAll();routeToken++;
   const key=routeKey(),parts=key.replace(/^#\/?/,'').split('/');currentRoute=key;
   document.body.classList.toggle('home-paging',!parts[0]);
   const needsPosts=Boolean(cat(parts[0]))||['archive','post'].includes(parts[0]);
@@ -204,15 +204,18 @@
  // Homepage gestures advance one scene. Lists, articles and dialogs keep native scroll.
  window.addEventListener('wheel',e=>{
   if(!homePaging()||e.ctrlKey||editing(e.target)){cancelSectionScroll();return;}
-  if(!e.deltaY&&!wheelConsumed)return;
+  const pane=e.target.closest('[data-guestbook-scroll]');
+  if(!e.deltaY&&!wheelConsumed&&!wheelPaneGesture)return;
+  clearTimeout(wheelGestureTimer);wheelGestureTimer=setTimeout(()=>{wheelConsumed=false;wheelPaneGesture=false;},650);
+  if(wheelPaneGesture){if(!pane&&e.cancelable)e.preventDefault();return;}
+  if(wheelConsumed){if(e.cancelable)e.preventDefault();return;}
+  if(pane){wheelPaneGesture=true;return;}
   if(e.cancelable)e.preventDefault();
-  if(!wheelConsumed&&Math.abs(e.deltaX)>Math.abs(e.deltaY))return;
-  clearTimeout(wheelGestureTimer);wheelGestureTimer=setTimeout(()=>{wheelConsumed=false;},650);
-  if(wheelConsumed)return;
+  if(Math.abs(e.deltaX)>Math.abs(e.deltaY))return;
   wheelConsumed=true;pageHome(Math.sign(e.deltaY));
  },{passive:false});
  window.addEventListener('touchstart',e=>{
-  if(!homePaging()||editing(e.target)||e.touches.length!==1){touchGesture=null;return;}
+  if(!homePaging()||editing(e.target)||e.target.closest('[data-guestbook-scroll]')||e.touches.length!==1){touchGesture=null;return;}
   touchGesture={x:e.touches[0].clientX,y:e.touches[0].clientY,used:false};
  },{passive:true});
  window.addEventListener('touchmove',e=>{
@@ -224,7 +227,8 @@
  for(const event of ['touchend','touchcancel'])window.addEventListener(event,()=>{touchGesture=null;},{passive:true});
  window.addEventListener('scrollend',()=>{if(Math.abs(window.scrollY-sectionScrollTarget)<2)finishSectionScroll();},{passive:true});
  document.addEventListener('keydown',e=>{
-  if(homePaging()&&!e.target.closest('a,button,input,textarea,select,[contenteditable="true"]')&&['ArrowDown','ArrowUp','PageDown','PageUp',' '].includes(e.key)){
+  if(e.target.closest('[data-guestbook-scroll]'))return;
+  if(homePaging()&&!e.target.closest('a,button,input,textarea,select,[contenteditable="true"],[data-guestbook-scroll]')&&['ArrowDown','ArrowUp','PageDown','PageUp',' '].includes(e.key)){
    e.preventDefault();if(!e.repeat)pageHome(['ArrowUp','PageUp'].includes(e.key)||(e.key===' '&&e.shiftKey)?-1:1);
   }else if(['ArrowUp','ArrowDown','PageUp','PageDown','Home','End',' '].includes(e.key))cancelSectionScroll();
  });

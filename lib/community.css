@@ -35,3 +35,16 @@
 @media(max-height:630px){.guestbook-preview .guestbook-message:nth-child(n+2){display:none}.guestbook-preview{min-height:80px}.community-card{padding:23px}.community-card h2{font-size:27px}.community-subtitle{margin-top:8px}.guestbook-actions{margin-top:16px}.community-kicker{margin-bottom:9px}.visitor-totals{margin:24px auto 18px}}
 @media(max-height:520px) and (orientation:landscape){.community-section{padding:132px 28px 20px}.community-card{max-width:680px;padding:18px 25px}.community-card h2{font-size:25px}.community-kicker{margin-bottom:6px;font-size:8px}.community-subtitle{margin-top:6px;font-size:11px}.visitor-totals{margin:15px auto 10px;gap:24px}.visitor-totals strong{font-size:34px}.visitor-totals>div{gap:2px}.visitor-totals .mi{display:none}.metrics-state,.metrics-caption{font-size:9px;line-height:1.5;min-height:0}.metrics-caption{margin-top:4px}.guestbook-list{margin-top:12px}.guestbook-preview{min-height:55px}.guestbook-message{padding:8px 12px}.guestbook-message-meta{font-size:10px;margin-bottom:3px}.guestbook-message p{font-size:11px;line-height:1.5}.guestbook-preview .guestbook-message p{-webkit-line-clamp:1}.guestbook-actions{margin-top:12px;gap:16px}.guestbook-actions .pill-link{min-height:36px;padding:6px 15px}.guestbook-note{margin-top:7px;font-size:8px}}
 @media(prefers-reduced-motion:reduce){.community-card,.category-copy{transform:none!important}.content-spinner{animation:none}}
+.guestbook-scroll{min-width:0;overscroll-behavior:contain;touch-action:pan-y pinch-zoom;scrollbar-width:thin;scrollbar-color:#aebfa5 transparent}
+.guestbook-scroll:focus-visible{outline:2px solid #8ba183;outline-offset:5px;border-radius:14px}
+.guestbook-scroll .guestbook-list{margin-top:0}
+.guestbook-section{height:100svh;align-items:stretch}
+.guestbook-section .guestbook-card{display:flex;flex-direction:column;height:100%;min-height:0;max-width:930px}
+.guestbook-section .guestbook-card>h2,.guestbook-section .guestbook-actions,.guestbook-section .guestbook-note{flex-shrink:0}
+.guestbook-section .guestbook-scroll{flex:1 1 auto;min-height:70px;overflow:auto;overflow-x:hidden;scrollbar-gutter:stable;margin-top:22px;padding-right:5px}
+.guestbook-section .guestbook-full .guestbook-message{padding:15px 17px}
+.guestbook-section .guestbook-full .guestbook-message p{font-size:13px;line-height:1.9}
+.guestbook-section .guestbook-more{margin-top:16px}
+.guestbook-section .guestbook-more .pill-link{font-size:11px;min-height:40px;padding:8px 16px}
+@media(max-width:700px){.guestbook-section .guestbook-scroll{margin-top:18px}.guestbook-section .guestbook-full .guestbook-message{padding:13px 14px}.guestbook-section .guestbook-full .guestbook-message p{font-size:12px;line-height:1.9}}
+@media(max-height:520px) and (orientation:landscape){.guestbook-card>.community-kicker,.guestbook-card>.community-subtitle{display:none}.guestbook-card h2{font-size:22px}.guestbook-section .guestbook-actions{margin-top:8px}.guestbook-section .guestbook-scroll{margin-top:12px;min-height:65px}.guestbook-section .guestbook-full .guestbook-message{padding:10px 13px}}
