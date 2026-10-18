@@ -93,7 +93,8 @@
  function article(id){
   const p=blog.posts.find(p=>p.id===id);if(!p)return missing();
   const markdown=typeof p.markdown==='string',body=markdown?(window.BlogArticle?.renderMarkdown(p.markdown)||`<p>${esc(p.markdown)}</p>`):(p.body||[]).map(b=>`<section><h2>${esc(b.heading)}</h2><p>${esc(b.text)}</p></section>`).join('');
-  return `<article class="inner-page article route-enter">${crumbs(p.title)}${meta(p)}<h1>${esc(p.title)}</h1>${tags(p)}<p class="article-lead">${esc(p.excerpt)}</p><div class="article-body${markdown?' is-markdown':''}">${body}</div>${p.demo?notice:''}<div class="article-bottom"><a href="#/${p.category}">${icon('arrow_back')} 返回${esc(cat(p.category).title)}</a><a href="#/">回到首页 ${icon('arrow_outward')}</a></div></article>`;
+  const heroSource=window.BlogArticle?.imageUrl(p.cover||'')||cover(p.category),minutes=Math.max(1,Math.ceil(body.replace(/<[^>]*>/g,'').replace(/\s/g,'').length/400));
+  return `<article class="article article-page route-enter" aria-labelledby="article-title"><header class="article-hero"><img class="article-hero-image" src="${esc(heroSource)}" alt="" aria-hidden="true" fetchpriority="high"><div class="article-hero-shade" aria-hidden="true"></div><div class="article-hero-copy"><a class="article-hero-category" href="#/${p.category}">${esc(cat(p.category).title)}</a><h1 id="article-title">${esc(p.title)}</h1><div class="article-hero-meta"><time datetime="${esc(p.date)}">${esc(p.date)}</time><span aria-hidden="true">·</span><span>约 ${minutes} 分钟阅读</span>${p.demo?'<span class="sample">示例</span>':''}</div></div></header><div class="article-content-layer"><div class="inner-page article-content-inner"><nav class="breadcrumbs" aria-label="文章位置"><a href="#/">首页</a>${icon('chevron_right')}<a href="#/${p.category}">${esc(cat(p.category).title)}</a></nav><p class="article-lead">${esc(p.excerpt)}</p>${tags(p)}<div class="article-body${markdown?' is-markdown':''}">${body}</div>${p.demo?notice:''}<div class="article-bottom"><a href="#/${p.category}">${icon('arrow_back')} 返回${esc(cat(p.category).title)}</a><a href="#/">回到首页 ${icon('arrow_outward')}</a></div></div></div></article>`;
  }
  function missing(){return `<section class="inner-page"><h1>这一页还在路上。</h1><p>暂时没有找到这篇内容。</p><a class="pill-link glass" href="#/">回到首页 ${icon('arrow_forward')}</a></section>`;}
  function routeKey(){return location.hash || '#/';}
@@ -144,6 +145,7 @@
   else if(parts[0]==='archive'){main.innerHTML=`<section class="inner-page">${crumbs('全部文章')}<h1>全部文章</h1><div id="post-list">${sorted().map(row).join('')}</div>${sampleNotice(blog.posts)}</section>`;label='全部文章';}
   else if(parts[0]==='post'){let id='';try{id=decodeURIComponent(parts[1]||'')}catch{}main.innerHTML=article(id);label=blog.posts.find(p=>p.id===id)?.title||'未找到内容';}
   else main.innerHTML=missing();
+  document.body.classList.toggle('reading-article',Boolean(main.querySelector('.article-page')));
   if(needsPosts&&contentState==='backup')main.querySelector('.inner-page')?.insertAdjacentHTML('afterbegin','<p class="content-status" role="status">暂时无法获取最新文章，当前显示本地备份。可以稍后刷新重试。</p>');
   let scene=cat(parts[0])?.id;
   if(parts[0]==='post'){try{scene=blog.posts.find(p=>p.id===decodeURIComponent(parts[1]||''))?.category;}catch{}}

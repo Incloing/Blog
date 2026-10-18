@@ -18,7 +18,6 @@
   }
   if(key[0]==='post'){
    let id='';try{id=decodeURIComponent(key[1]||'');}catch{return;}const post=window.BLOG.posts.find(p=>p.id===id),article=main.querySelector('.article');if(!post||!article)return;
-   if(post.cover){const source=window.BlogArticle.imageUrl(post.cover);if(source)article.querySelector('.article-lead').insertAdjacentHTML('afterend',`<img class="article-cover" src="${esc(source)}" alt="${esc(post.title)}的封面">`);}
    const updated=post.updatedAt?new Date(post.updatedAt).toLocaleString('zh-CN',{timeZone:'Asia/Singapore',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}):post.date.replaceAll('-','/');
    article.querySelector('.article-bottom').insertAdjacentHTML('beforebegin',`<section class="reading-end"><p class="reading-thanks">感谢阅读。</p><p class="reading-updated">更新于 <time datetime="${esc(post.updatedAt||post.date)}">${esc(updated)}</time></p><button class="pill-link glass reward-button" type="button" data-reward-open>${heartIcon} 赞赏</button><p class="reward-note">如果这些文字对你有帮助，欢迎请我喝一杯茶。</p></section>`);
   }
