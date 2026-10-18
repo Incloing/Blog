@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "revision": "67aa0566-be94-43be-a46b-3be5d6230d62",
+  "revision": "becdf17b-44ff-4a55-aafa-3501db3f2eef",
   "posts": [
     {
       "id": "hello-world",
@@ -12,9 +12,10 @@
         "游戏"
       ],
       "excerpt": "买了正义皮肤",
+      "cover": "assets/uploads/hello-world/971cf21c-42a8-4ea5-b356-774212858dda.webp",
       "demo": false,
       "createdAt": "2026-10-17T09:37:56.900Z",
-      "updatedAt": "2026-10-17T13:06:40.635Z"
+      "updatedAt": "2026-10-18T02:16:23.800Z"
     },
     {
       "id": "learning-map",
