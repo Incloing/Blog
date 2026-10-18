@@ -1,78 +1,68 @@
-# Incloing
+# Incloing · Cloudflare 独立博客
 
-[访问个人主页](https://incloing.github.io/Blog/)
+本版本以 Cloudflare Workers / Pages + D1 作为写作与实时数据后端，GitHub 保存源码和全部公开数据快照，支持从仓库修改文章并同步回网站。无需 R2 或绑定 R2 支付方式。前台保留浅色背景、玻璃效果、分屏翻转、头像、分类、社交链接和小恐龙游戏。
 
-浅色个人主页：风景背景与打字欢迎语、同一风景虚化的个人介绍、依次展开的学习笔记 / 个人项目 / 生活随笔。首页只展示分类入口，文章在分类内查看。分类列表和文章详情使用各自分类封面图的模糊版作为整页背景。
+已上线：[个人主页](https://incloing-blog.incloing-cloudflare.workers.dev/) · [写作后台](https://incloing-blog.incloing-cloudflare.workers.dev/admin/)。
 
-左上角固定目录按钮，打开后展示头像和大类导航。学校、专业、QQ 用图标呈现，支持触摸点击和键盘查看。配有柔和质感的圆头渐变圆环、Incloing 名称与普通英文 LOADING 加载小字、透明玻璃边框、点击光晕和实时运行时间。首页使用分屏手势：轻轻向下滑动进入下一项，向上返回上一项，一次手势严格只切换相邻一项，力度、距离、速度均不增加步数；滚轮惯性尾段不会再触发新的翻页。分类、文章和目录内保留原生连续滚动。系统开启“减少动态效果”时，关闭打字和装饰动效。
+免费 Pages 备用入口：[个人主页](https://incloing-blog.pages.dev/) · [写作后台](https://incloing-blog.pages.dev/admin/)。两个入口直接绑定同一份 D1 数据，不会请求另一个入口来加载文章或登录。是否能在具体手机网络打开，应以站主的直连实测为准。
 
-顶部提供液态玻璃分区导航；在分类或文章页点击名称，也会回到首页对应区块。点击导航名称平滑定位到首页相应分区；首页轻滑一次切换一项。分类配图、玻璃卡片与文字分层浮现，所有点击都有玻璃高光反馈，鼠标、触摸与键盘操作使用同一套反馈。动效不改变区块高度。
+## 使用
 
-分类玻璃卡片会在每次分屏切换时翻转：向下从右侧翻入，向上从左侧翻回。开启“减少动态效果”时跳过翻转。生活随笔之后依次为访问统计和留言板；这些页面继续遵守一次手势只切到相邻一页。
+打开网站的 `/admin/`，输入站主设置的密码。服务器验证密码并签发 HttpOnly、Secure、SameSite 登录 Cookie，保持登录 30 天；可在账户设置退出或修改密码。发布、图片上传、删除和个人资料修改均在服务器重新校验登录与 CSRF，页面入口不能代替服务器验证。
 
-## 来访记录、留言与彩蛋
+- 新建文章、选择分类、从手机相册选择图片、预览、直接发布。
+- 重新编辑线上文章；支持删除单篇和经确认后清理示例文章。
+- 编辑学校、专业、QQ 及自我介绍。
+- 访客直接在站内填写昵称和留言；站主可在后台管理留言。
+- 文章本机草稿仍支持自动保存、导入与导出。旧域名的未发布草稿应先从旧后台导出，再在新后台导入。
 
-访问统计通过 [CounterAPI](https://counterapi.com/#accessing-the-api) 的 JSON 接口读取累计浏览量和匿名去重访客数，从本功能启用后累计，不回填过去的数据。统计请求不影响主页显示；服务暂时不可用时显示不可用状态，不会伪造访问数字。开发预览不会递增线上计数。
+## 图片与额度
 
-留言板读取 [GitHub 留言主题](https://github.com/Incloing/Blog/issues/1) 中的真实留言。完整正文直接显示在主页的留言框里，较早留言也在原框内加载，无需进入另一个页面。留言框内保留原生滚动；在底部重新向下划一次可进入页脚，在顶部重新向上划可返回上一页。一次正在阅读的手势不会在中途切换页面。手机端缩短留言框，并提供“继续向下”按钮。访客使用自己的 GitHub 账号提交后，返回网站会自动同步；可手动刷新，留言板可见时也会定期更新。兼容原有 `#/guestbook` 地址。
+普通照片在浏览器缩放到最长边 1920 像素并压缩为 WebP，处理后每张最多 2MB，GIF 也最多 2MB。新上传图片按 256KB 分块保存到 D1，避免触及单行大小上限。后台显示新图片用量，应用限制为 200MB，为文章和数据库索引留出空间；达到限制会拒绝新上传，已有图片保留。删除文章不会立即删除其图片，以便其他文章复用。
 
-左上角目录的“一枚小彩蛋”打开原创站内小恐龙跑酷。游戏由本仓库 Canvas 代码绘制，支持键盘和触屏，不跳转 Chrome 内置页面；最佳分数仅保存在本机。关闭游戏后恢复原来的页面位置。公开页面和后台页脚均不展示源码链接。
+Workers 与 D1 使用免费计划，实际服务受 Cloudflare 免费额度限制；本项目不自动升级套餐。大量照片应另行迁移到对象存储。Cloudflare 免费网络不等于中国内地网络，访问速度取决于实际网络。
 
-## 本地预览
+## 数据与运行
 
-无需安装依赖或构建，在仓库根目录运行：
+`src/worker.mjs` 是服务端接口，`public/` 是唯一公开静态目录；`data/`、`.wrangler/`、本地会话与导入 SQL 不会部署为静态资源。密码校验值仅存数据库，明文密码不写进源码或客户端。文章逐篇存储，写入使用版本校验；不会静默覆盖别处的修改。留言按纯文字显示，写入有限流。
 
-```sh
-python -m http.server 4173
-```
+运行 `npm ci` 安装锁定依赖，`npm run dev` 本地预览，`npm run deploy` 通过 Cloudflare 官方工具部署。配置中的数据库 ID 只指向此站点；部署凭据在系统凭据库，不包含在源码中。
 
-打开 `http://localhost:4173`。所有实际使用的字体、图片和图标都在本站托管。
+Pages 入口使用 `npm run deploy:pages` 单独发布；`scripts/build-pages.mjs` 从同一份前端和服务端生成 `pages-dist/`，仅动态接口与上传图片经过 Pages Functions。Pages 配置在 `pages/wrangler.jsonc`，沿用同一数据库 ID。它需要 Cloudflare 官方授权的 `pages:write` 权限，不需要 GitHub、R2 或购买域名。两个入口的登录状态与本机草稿分别保存在各自浏览器域名下；切换入口前，如有未发布草稿，请先导出再导入。
 
-## 网页写作后台
+## 首次导入与备份
 
-打开 [写作后台](https://incloing.github.io/Blog/admin/)，也可从首页左侧目录或页脚进入。可以新建文章、选择学习笔记 / 个人项目 / 生活随笔、上传图片、预览、发布，以及重新编辑已发布文章。正文支持 Markdown，工具栏可插入标题、加粗、列表、引用、代码和链接。
+首次部署时应用 `migrations/`，再通过 `scripts/bootstrap.mjs` 从 stdin 输入站主密码，生成仅保存在非公开目录的导入 SQL。导入脚本仅供首次迁移；上线后不要重新导入旧快照，否则可能重新插入已删除的文章。`data/seed.json`、`data/guestbook.json` 和 `data/export-metadata.json` 为迁移快照，不包含在源码包。
 
-后台先输入站主设置的密码再显示编辑器。入口使用加盐 PBKDF2 校验，密码与解锁状态不保存在浏览器存储，重新打开或刷新需要再次输入。此处属于静态页面入口锁，公开代码可被查看，不能替代服务器鉴权；真正的发布权限由 GitHub 账号和仓库授权控制，不能仅靠入口密码发布。不要在公开源码中保存明文密码或 GitHub 令牌。
+整站数据库备份可在本机执行 `npx wrangler d1 export DB --remote --output backup.sql`，文件包含私人账户校验信息，须私下保存。不要把数据库、登录凭据或 `.wrangler/` 上传至公开仓库。D1 自带恢复功能以 Cloudflare 当前免费计划政策为准。
 
-首次发布时点击「连接 GitHub」，按页面指引创建 fine-grained personal access token：资源所有者为 `Incloing`，只选择 `Blog` 仓库，仓库权限 `Contents` 为 `Read and write`。令牌只在后台页面的内存中使用，不会保存到草稿、仓库或聊天；刷新页面后需要重新连接。不要把令牌写入文章。
+初始数据保留迁移时的所有正式文章、示例、个人简介、上传图片及历史留言。旧站的真实统计快照作为累计起点，新站访客按匿名浏览器标识去重；旧、新统计口径有所不同。本站运行时间继续使用首次上线时间。
 
-草稿和待上传图片通过 IndexedDB 自动保存在当前浏览器，未发布的草稿不会公开；清除浏览器数据会移除本地草稿，可下载备份。点击发布后，文章和图片会一起提交到 GitHub。后台会分别显示保存进度和网站上线状态；GitHub Pages 更新通常需要等待片刻。发布冲突不会覆盖其他页面的修改，草稿会保留。
+独立域名需要站主另行注册后绑定；`workers.dev` 是 Cloudflare 提供的默认访问地址。
 
-文章清单保存在 `content/posts.json`，图片保存在 `assets/uploads/`。新的文章会通过不使用缓存的请求读取，无需每次发文手动修改资源版本号。`content.js` 的旧示例文章只作为读取异常时的兼容内容；正常访问以文章清单为准。
+## 阅读与写作
 
-## 更新个人资料
+每个分类逐屏显示一篇文章，轻滑一次只到相邻文章；“目录”按钮可直接定位。文章卡片上方为封面，下方为标题和正文开头。后台在“文章封面”选择图片，和正文一起发布；未设置时使用分类配图。文章末尾展示更新时间、感谢阅读和赞赏入口；收款码在“编辑个人简介”中上传和保存。
 
-在写作后台点击「编辑个人简介」，可修改学校、专业、QQ 号和自我介绍，点击「保存并更新主页」。个人简介支持换行，按纯文字展示；首页显示简短预览，长文可点击进入「关于我」完整阅读。未保存的文字暂存在当前浏览器，刷新后解锁并重新打开即可恢复。换设备前请先保存到网站。保存使用最新文章清单，仅修改个人资料，保留全部文章；资料在其他页面变更时会提示冲突，可复制本机文字后载入线上简介进行合并。
+首页内置 100 条原创短句，按浏览器记录顺序轮换；每次回首页换下一条，停留约 5 秒后逐字删除、再打出新句。关闭系统动画时仅切换文字。小游戏持续加速，160 分后出现空中障碍：保持在地面可通过，跳起会撞到。
 
-线上个人资料保存在 `content/posts.json` 的 `profile` 字段；`content.js` 中的个人资料仅作首次使用和异常时的默认值。其他全站配置可编辑 `content.js`：
+## GitHub 同步与练习
 
-- `heroText`：首屏文案，使用 `\n` 换行。目前为暂定文案。
-- `profile.school` / `profile.major`：东北林业大学 / 人工智能。
-- `profile.qq`：`3468692947`。`profile.bio` 目前留空，填入后自动展示。
-- `social`：GitHub、小红书、X、Instagram、Facebook 的本人主页链接。请填写完整 URL；留空时会显示待补充提示，不会跳转到猜测的账号。
-- `categories`：大类名称、说明。
-- `posts`：兼容用的旧示例内容。日常发文请使用写作后台，或修改 `content/posts.json`。
-- `startedAt`：首次成功开通 GitHub Pages 的时间 `2026-10-17T02:34:10Z`，改版时保持不变。
+仓库：[Incloing/Blog](https://github.com/Incloing/Blog)。GitHub Pages 和 Cloudflare 页面共用 Cloudflare 的实时文章、留言和统计；GitHub 另保留可追溯的公开快照。GitHub 后台入口会进入统一写作后台。
 
-头像为 `assets/avatar.webp`，使用站主提供的原图，保留完整画面并转换为 WebP。首屏桌面与手机分别使用 `hero-pastel.webp` / `hero-pastel-mobile.webp`。背景与分类素材来源见 [ASSETS.md](./ASSETS.md)。
+- `public/`：前端页面、样式、图片；`src/`：服务端接口。
+- `content/notes/`、`content/projects/`、`content/life/`：可直接在 GitHub 编辑的 Markdown 正文。第一行是 `# 文章标题`，空一行后写正文。新建文件名使用小写英文字母、数字、短横线，例如 `my-first-project.md`；从所在文件夹确定分类。
+- `content/posts.json`：完整文章与简介快照，可修改日期、标签、摘要和 `cover`。正文也可以直接编辑对应 Markdown，避免同时改同一处。
+- `public/assets/uploads/`：已发布的图片；新图片可上传到一个文章子目录，用新文件名，然后在 Markdown 或封面字段引用 `assets/uploads/文章标识/图片.webp`。
+- `content/comments.json`、`content/metrics.json`：公开留言和统计快照，只做备份，不从 GitHub 覆盖实时计数与留言。
+- `content/.sync-base.json`：自动合并基线，勿手动编辑。
 
-## 主要文件
+“Blog sync and publish”工作流在提交到 main 时运行，也会约每 15 分钟拉取网页后台的新内容。GitHub 定时任务可能排队；需要立即同步时到 Actions 选择该工作流，点击 Run workflow。长期无仓库活动可能导致 GitHub 暂停定时任务，可在 Actions 重新启用。同一篇文章两边同时修改时停止并报告冲突，保留两边内容；不同文章可自动合并。
 
-- `index.html`：页面框架、目录、搜索、加载动画。
-- `app.js`：路由、分类筛选、搜索、打字、运行计时、弹层与滚动位置。
-- `style.css`：浅色玻璃效果、响应式布局和动效。
-- `admin/`：网页编辑器、草稿保存及 GitHub 发布接口。
-- `lib/article.js`：公开文章和后台预览共用的 Markdown 渲染及内容校验。
-- `lib/community.js` / `lib/metrics.js`：来访记录、留言板和统计接口。
-- `lib/dino.js` / `lib/dino.css`：原创 Canvas 小恐龙彩蛋。
-- `content/posts.json`：已发布文章清单和正文。
-- `assets/vendor/`：自托管的 marked、DOMPurify 与许可证。
-- `assets/fonts/`：Outfit、Noto Sans SC、Material Symbols 与许可证。
+密码校验值、会话、匿名访客标识、限流记录、数据库备份及未发布草稿均不导出。只有已发布内容引用的图片会进入快照。专用 `CONTENT_SYNC_TOKEN` 存放在 Cloudflare Secrets 和 GitHub Actions Secrets，可导入公开内容，但不能登录后台、改密码或读取私人账户表。
 
-文章使用唯一 `id`，分类为 `notes`、`projects`、`life`，日期为 `YYYY-MM-DD`；新文章使用 `markdown` 正文，旧文章的 `body` 数组继续兼容。后台只有账号 ID 为 `259068355` 的站主授权可以发布。
+## 从 GitHub 自动发布代码
 
-## 发布
+当前 Pages 项目采用 Direct Upload，通过 `.github/workflows/blog.yml` 连接 GitHub Actions，无需更换网址。公开内容同步已使用独立授权；自动部署 Cloudflare 源码需要另加仓库 Secret `CLOUDFLARE_API_TOKEN`，权限仅限当前 Cloudflare 账号的 Cloudflare Pages Edit、Workers Scripts Edit 和 D1 Edit。令牌只填入 GitHub 仓库 Settings → Secrets and variables → Actions，不写入文件或聊天。
 
-GitHub Pages 从 `main` 分支根目录直接发布，`.nojekyll` 保留。更新 CSS / JS 后同步修改页面的资源版本参数；更新字体后同步修改 CSS 中字体版本参数，以便手机取得新资源。当前版本 `light-20261017-r13`。日常通过后台发文不需要更新代码版本。
-
-主要检查：多种手机宽度与横屏、目录焦点及背景锁定、关闭弹层后位置恢复、浏览器返回、图标点击、分类筛选、搜索、运行计时、减少动态效果，以及背景加载失败后的恢复。
+设置后，在 Actions 手动运行并勾选 Also deploy source changes to Cloudflare，完成首次验证。以后修改 `public/`、`src/` 等源码会自动构建并部署 Workers 和 Pages；只有文章或快照变化时不重复部署 Cloudflare。该工作流仅在 main 提交、定时任务或手动触发时运行，不接收外部 PR 的密钥请求。

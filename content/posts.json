@@ -1,20 +1,20 @@
 {
   "version": 1,
-  "revision": "pub-mvc7kz5j-78f2bf5c",
+  "revision": "67aa0566-be94-43be-a46b-3be5d6230d62",
   "posts": [
     {
       "id": "hello-world",
       "title": "买枪皮了",
+      "markdown": "![Screenshot_20261016_083318_com_tencent_apps_valorant_MainZoneHomeActivity](./assets/uploads/hello-world/3024b324-8778-4e20-b195-5f41717603fe.webp)\n\n![Screenshot_20261016_085456_com_tencent_apps_valorant_RNHostActivity](./assets/uploads/hello-world/73bdbc8a-4e24-46c9-ab16-03f9a30bb5a9.webp)\n等了很久的正义皮肤终于出了，毫不犹豫直接拿下，钱包痛失129😭",
       "category": "life",
       "date": "2026-10-17",
       "tags": [
         "游戏"
       ],
-      "excerpt": "等了很久的正义皮肤终于出了，毫不犹豫直接拿下，钱包痛失129😭",
-      "markdown": "![Screenshot_20261016_083318_com_tencent_apps_valorant_MainZoneHomeActivity](./assets/uploads/hello-world/3024b324-8778-4e20-b195-5f41717603fe.webp)\n\n![Screenshot_20261016_085456_com_tencent_apps_valorant_RNHostActivity](./assets/uploads/hello-world/73bdbc8a-4e24-46c9-ab16-03f9a30bb5a9.webp)\n等了很久的正义皮肤终于出了，毫不犹豫直接拿下，钱包痛失129😭",
+      "excerpt": "买了正义皮肤",
       "demo": false,
       "createdAt": "2026-10-17T09:37:56.900Z",
-      "updatedAt": "2026-10-17T09:43:07.205Z"
+      "updatedAt": "2026-10-17T13:06:40.635Z"
     },
     {
       "id": "learning-map",
@@ -39,6 +39,29 @@
         {
           "heading": "给笔记建立联系",
           "text": "在文章末尾记录相关主题和下一步想学的内容。比起一次整理完所有知识，持续补充往往更容易坚持。"
+        }
+      ]
+    },
+    {
+      "id": "little-tool",
+      "category": "projects",
+      "title": "下一个小项目，正在酝酿",
+      "date": "2026-10-10",
+      "tags": [
+        "灵感",
+        "小工具"
+      ],
+      "demo": true,
+      "status": "示例占位",
+      "excerpt": "为生活中一个小小的不便，尝试做一个小小的工具。",
+      "body": [
+        {
+          "heading": "项目占位",
+          "text": "这里是第二个项目的位置。准备好真实项目后，可以替换标题、描述、标签，以及项目的实现过程。"
+        },
+        {
+          "heading": "建议记录的内容",
+          "text": "这个项目为什么开始？做了什么？遇到了哪些问题？下一步想改进什么？这些问题能帮助别人更好地理解你的作品。"
         }
       ]
     },
@@ -70,28 +93,6 @@
       ]
     },
     {
-      "id": "small-observations",
-      "category": "life",
-      "title": "普通的一天，也有值得记住的事情",
-      "date": "2026-10-14",
-      "tags": [
-        "日常",
-        "片刻"
-      ],
-      "demo": true,
-      "excerpt": "不一定要等到远行，才开始留意身边的风景。",
-      "body": [
-        {
-          "heading": "留意",
-          "text": "这是一篇生活随笔示例。这里可以记下一次散步、一段对话、一本刚读完的书，或一个突然冒出来的想法。"
-        },
-        {
-          "heading": "把片刻留下来",
-          "text": "照片、文字、几句简单的描述，都可以成为记录。它们不必宏大，只要对自己有意义。"
-        }
-      ]
-    },
-    {
       "id": "project-notes",
       "category": "notes",
       "title": "动手之前，先把问题写清楚",
@@ -114,25 +115,24 @@
       ]
     },
     {
-      "id": "little-tool",
-      "category": "projects",
-      "title": "下一个小项目，正在酝酿",
-      "date": "2026-10-10",
+      "id": "small-observations",
+      "category": "life",
+      "title": "普通的一天，也有值得记住的事情",
+      "date": "2026-10-14",
       "tags": [
-        "灵感",
-        "小工具"
+        "日常",
+        "片刻"
       ],
       "demo": true,
-      "status": "示例占位",
-      "excerpt": "为生活中一个小小的不便，尝试做一个小小的工具。",
+      "excerpt": "不一定要等到远行，才开始留意身边的风景。",
       "body": [
         {
-          "heading": "项目占位",
-          "text": "这里是第二个项目的位置。准备好真实项目后，可以替换标题、描述、标签，以及项目的实现过程。"
+          "heading": "留意",
+          "text": "这是一篇生活随笔示例。这里可以记下一次散步、一段对话、一本刚读完的书，或一个突然冒出来的想法。"
         },
         {
-          "heading": "建议记录的内容",
-          "text": "这个项目为什么开始？做了什么？遇到了哪些问题？下一步想改进什么？这些问题能帮助别人更好地理解你的作品。"
+          "heading": "把片刻留下来",
+          "text": "照片、文字、几句简单的描述，都可以成为记录。它们不必宏大，只要对自己有意义。"
         }
       ]
     }
@@ -141,7 +141,8 @@
     "school": "东北林业大学",
     "major": "人工智能",
     "qq": "3468692947",
-    "bio": "一名在校大学生，喜欢跑步，玩游戏，看电影，散步，希望交到与自己志趣相投的真心朋友"
+    "bio": "一名在校大学生，喜欢跑步，玩游戏，看电影，散步，希望交到与自己志趣相投的真心朋友",
+    "rewardQr": "assets/uploads/profile/wechat-reward.jpg"
   },
-  "profileUpdatedAt": "2026-10-17T09:42:31.869Z"
+  "profileUpdatedAt": "2026-10-18T00:13:20.866Z"
 }

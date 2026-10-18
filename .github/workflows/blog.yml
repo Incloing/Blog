@@ -1,0 +1,106 @@
+name: Blog sync and publish
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '7,22,37,52 * * * *'
+  workflow_dispatch:
+    inputs:
+      deploy:
+        description: Also deploy source changes to Cloudflare
+        type: boolean
+        default: false
+concurrency:
+  group: incloing-blog-sync
+  cancel-in-progress: false
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - name: Merge public website and repository changes
+        run: node scripts/content-sync.mjs
+        env:
+          CONTENT_SYNC_TOKEN: ${{ secrets.CONTENT_SYNC_TOKEN }}
+      - name: Commit public snapshot
+        shell: bash
+        run: |
+          git config user.name 'Incloing Blog Sync'
+          git config user.email '259068355+Incloing@users.noreply.github.com'
+          git add content public/assets/uploads
+          if ! git diff --cached --quiet; then
+            git commit -m 'Sync public blog data'
+            git push origin HEAD:main
+          fi
+      - name: Confirm repository snapshot
+        run: node scripts/content-sync.mjs --ack
+        env:
+          CONTENT_SYNC_TOKEN: ${{ secrets.CONTENT_SYNC_TOKEN }}
+      - name: Build GitHub Pages
+        run: node scripts/build-github.mjs
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: github-dist
+      - name: Publish GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+  cloudflare:
+    needs: sync
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: '0ba144022d59086783296e4720b6cbae'
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - name: Check deployment setup and source changes
+        id: source
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_BEFORE: ${{ github.event.before }}
+          FORCE_DEPLOY: ${{ inputs.deploy }}
+        shell: bash
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
+            echo 'Cloudflare 自动部署待配置：请在仓库 Secrets 添加 CLOUDFLARE_API_TOKEN。' >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          node --input-type=module <<'JS'
+          import fs from 'node:fs';import {execFileSync} from 'node:child_process';
+          const before=process.env.EVENT_BEFORE;
+          const files=/^[a-f0-9]{40}$/.test(before||'')&&!/^0+$/.test(before)?execFileSync('git',['diff','--name-only',before,'HEAD'],{encoding:'utf8'}).split('\n'):[];
+          const changed=process.env.FORCE_DEPLOY==='true'||files.some(p=>/^(public\/|src\/|scripts\/build|pages\/|migrations\/|wrangler\.jsonc|package(?:-lock)?\.json)/.test(p));
+          fs.appendFileSync(process.env.GITHUB_OUTPUT,'changed='+changed+'\n');
+          JS
+      - name: Install locked dependencies
+        if: steps.source.outputs.changed == 'true'
+        run: npm ci
+      - name: Apply schema additions
+        if: steps.source.outputs.changed == 'true'
+        run: npx wrangler d1 migrations apply DB --remote
+      - name: Deploy Workers and Pages
+        if: steps.source.outputs.changed == 'true'
+        run: |
+          npm run deploy
+          npm run deploy:pages

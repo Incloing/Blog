@@ -1,0 +1,148 @@
+{
+  "version": 1,
+  "revision": "67aa0566-be94-43be-a46b-3be5d6230d62",
+  "posts": [
+    {
+      "id": "hello-world",
+      "title": "买枪皮了",
+      "markdown": "![Screenshot_20261016_083318_com_tencent_apps_valorant_MainZoneHomeActivity](./assets/uploads/hello-world/3024b324-8778-4e20-b195-5f41717603fe.webp)\n\n![Screenshot_20261016_085456_com_tencent_apps_valorant_RNHostActivity](./assets/uploads/hello-world/73bdbc8a-4e24-46c9-ab16-03f9a30bb5a9.webp)\n等了很久的正义皮肤终于出了，毫不犹豫直接拿下，钱包痛失129😭",
+      "category": "life",
+      "date": "2026-10-17",
+      "tags": [
+        "游戏"
+      ],
+      "excerpt": "买了正义皮肤",
+      "demo": false,
+      "createdAt": "2026-10-17T09:37:56.900Z",
+      "updatedAt": "2026-10-17T13:06:40.635Z"
+    },
+    {
+      "id": "learning-map",
+      "category": "notes",
+      "title": "把学过的东西，整理成自己的知识地图",
+      "date": "2026-10-16",
+      "tags": [
+        "学习方法",
+        "知识整理"
+      ],
+      "demo": true,
+      "excerpt": "从一个问题出发，记录理解的过程，再让知识之间建立联系。",
+      "body": [
+        {
+          "heading": "先记下问题",
+          "text": "这是一篇学习笔记示例。可以先写清楚：我正在学什么？我遇到了哪个问题？我想用这些知识解决什么？"
+        },
+        {
+          "heading": "记录推导，而不只是结论",
+          "text": "用自己的话复述概念，补上一个简单的例子，留下尚未理解的部分。下次回来时，就能接着这个思路继续。"
+        },
+        {
+          "heading": "给笔记建立联系",
+          "text": "在文章末尾记录相关主题和下一步想学的内容。比起一次整理完所有知识，持续补充往往更容易坚持。"
+        }
+      ]
+    },
+    {
+      "id": "little-tool",
+      "category": "projects",
+      "title": "下一个小项目，正在酝酿",
+      "date": "2026-10-10",
+      "tags": [
+        "灵感",
+        "小工具"
+      ],
+      "demo": true,
+      "status": "示例占位",
+      "excerpt": "为生活中一个小小的不便，尝试做一个小小的工具。",
+      "body": [
+        {
+          "heading": "项目占位",
+          "text": "这里是第二个项目的位置。准备好真实项目后，可以替换标题、描述、标签，以及项目的实现过程。"
+        },
+        {
+          "heading": "建议记录的内容",
+          "text": "这个项目为什么开始？做了什么？遇到了哪些问题？下一步想改进什么？这些问题能帮助别人更好地理解你的作品。"
+        }
+      ]
+    },
+    {
+      "id": "personal-home",
+      "category": "projects",
+      "title": "Incloing：我的个人主页",
+      "date": "2026-10-15",
+      "tags": [
+        "Web",
+        "个人网站"
+      ],
+      "demo": true,
+      "status": "示例项目",
+      "excerpt": "一个用来整理学习、展示项目、保存日常记录的个人空间。",
+      "body": [
+        {
+          "heading": "项目概览",
+          "text": "这是项目详情页示例，展示你的作品可以如何呈现。请将目标、截图、技术选型和实际成果替换为真实内容。"
+        },
+        {
+          "heading": "从需求到结构",
+          "text": "首页介绍自己，学习笔记按主题分类，项目页讲清目标与实现，随笔记录日常。内容可以通过 content.js 统一管理。"
+        },
+        {
+          "heading": "下一步",
+          "text": "填入真实介绍与文章，为项目补充截图、仓库地址和演示链接，逐步把这里变成自己的数字花园。"
+        }
+      ]
+    },
+    {
+      "id": "project-notes",
+      "category": "notes",
+      "title": "动手之前，先把问题写清楚",
+      "date": "2026-10-12",
+      "tags": [
+        "实践",
+        "问题拆解"
+      ],
+      "demo": true,
+      "excerpt": "从需求、边界到验证方式，一份小小的清单，让动手的过程更有方向。",
+      "body": [
+        {
+          "heading": "要解决的问题",
+          "text": "这是一篇实践笔记示例。先用一句话描述问题，再写下谁会使用、什么时候会用，以及什么结果才算完成。"
+        },
+        {
+          "heading": "拆成能够验证的小步",
+          "text": "每一步都尽量有清晰的输入和输出。做完后记录发现与取舍，这些过程往往比最终结果更值得保留。"
+        }
+      ]
+    },
+    {
+      "id": "small-observations",
+      "category": "life",
+      "title": "普通的一天，也有值得记住的事情",
+      "date": "2026-10-14",
+      "tags": [
+        "日常",
+        "片刻"
+      ],
+      "demo": true,
+      "excerpt": "不一定要等到远行，才开始留意身边的风景。",
+      "body": [
+        {
+          "heading": "留意",
+          "text": "这是一篇生活随笔示例。这里可以记下一次散步、一段对话、一本刚读完的书，或一个突然冒出来的想法。"
+        },
+        {
+          "heading": "把片刻留下来",
+          "text": "照片、文字、几句简单的描述，都可以成为记录。它们不必宏大，只要对自己有意义。"
+        }
+      ]
+    }
+  ],
+  "profile": {
+    "school": "东北林业大学",
+    "major": "人工智能",
+    "qq": "3468692947",
+    "bio": "一名在校大学生，喜欢跑步，玩游戏，看电影，散步，希望交到与自己志趣相投的真心朋友",
+    "rewardQr": "assets/uploads/profile/wechat-reward.jpg"
+  },
+  "profileUpdatedAt": "2026-10-18T00:13:20.866Z"
+}

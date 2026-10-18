@@ -1,0 +1,15 @@
+{
+  "name": "incloing-cloudflare",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev --ip 127.0.0.1 --port 4180",
+    "deploy": "wrangler deploy",
+    "build:pages": "node scripts/build-pages.mjs",
+    "build:github": "node scripts/build-github.mjs",
+    "sync:content": "node scripts/content-sync.mjs",
+    "deploy:pages": "npm run build:pages && wrangler pages deploy --cwd pages --project-name incloing-blog --branch main"
+  },
+  "devDependencies": {"wrangler": "4.151.1", "esbuild": "0.28.2"}
+}

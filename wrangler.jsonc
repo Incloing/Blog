@@ -1,0 +1,27 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "incloing-blog",
+  "main": "src/worker.mjs",
+  "compatibility_date": "2026-10-17",
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "run_worker_first": [
+      "/api/*",
+      "/content/posts.json",
+      "/assets/uploads/*"
+    ]
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "incloing-blog",
+      "database_id": "389b58fa-bd9b-4073-9c89-7f26e7312f6e",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "observability": {
+    "enabled": false
+  },
+  "account_id": "0ba144022d59086783296e4720b6cbae"
+}

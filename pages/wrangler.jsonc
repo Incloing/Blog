@@ -1,0 +1,13 @@
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "incloing-blog",
+  "pages_build_output_dir": "../pages-dist",
+  "compatibility_date": "2026-10-17",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "incloing-blog",
+      "database_id": "389b58fa-bd9b-4073-9c89-7f26e7312f6e"
+    }
+  ]
+}

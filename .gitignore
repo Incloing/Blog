@@ -1,4 +1,13 @@
 node_modules/
-.DS_Store
-Thumbs.db
-*.log
+.wrangler/
+.dev.vars
+.env*
+!/.env.example
+data/*.sql
+data/*.json
+data/*.zip
+artifacts/
+pages-dist/
+pages/.wrangler/
+github-dist/
+
