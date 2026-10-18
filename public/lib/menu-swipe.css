@@ -1,0 +1,4 @@
+.menu-dialog{touch-action:pan-y pinch-zoom}
+.menu-dialog::backdrop{opacity:var(--menu-swipe-veil,1)}
+.menu-dialog.menu-dragging,.menu-dialog.menu-settling{animation:none!important;will-change:transform;user-select:none;-webkit-user-select:none}
+.menu-dialog.menu-settling{pointer-events:none}
