@@ -1,0 +1,13 @@
+/* Keep the navigation steady while the scene underneath changes. */
+.site-header{view-transition-name:incloing-navigation}
+html.category-changing::view-transition{pointer-events:none}
+html.category-changing::view-transition-group(root){animation-duration:560ms}
+html.category-changing::view-transition-old(root){animation:category-scene-out 260ms ease-out both;mix-blend-mode:normal}
+html.category-changing::view-transition-new(root){animation:category-scene-in 560ms cubic-bezier(.22,1,.36,1) both;mix-blend-mode:normal}
+html.category-changing::view-transition-group(incloing-navigation){animation-duration:0s}
+html.category-changing::view-transition-old(incloing-navigation){display:none}
+html.category-changing::view-transition-new(incloing-navigation){animation:none}
+.category-old-backdrop{display:block!important}
+@keyframes category-scene-out{to{opacity:0;transform:scale(.985);filter:blur(3px)}}
+@keyframes category-scene-in{from{opacity:0;transform:translateY(18px) scale(1.015);filter:blur(5px)}to{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}}
+@media(prefers-reduced-motion:reduce){html.category-changing::view-transition-old(root),html.category-changing::view-transition-new(root){animation:none}}

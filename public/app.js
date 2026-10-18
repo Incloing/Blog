@@ -101,10 +101,12 @@
  function rememberScroll(){if(lockedScroll===null)history.replaceState({...history.state,scroll:window.scrollY},'',location.href);}
  function navigate(hash){
   cancelSectionScroll();closeAll();rememberScroll();
-  if(routeKey()===hash){window.scrollTo({top:0,behavior:reduced.matches?'instant':'smooth'});return;}
-  history.pushState({scroll:0},'',hash);render(0,true);
+  if(routeKey()===hash){window.IncloingCategoryMotion?.stop();window.scrollTo({top:0,behavior:reduced.matches?'instant':'smooth'});return;}
+  const update=()=>{history.pushState({scroll:0},'',hash);render(0,true);};
+  if(window.IncloingCategoryMotion)window.IncloingCategoryMotion.go(hash,update);else update();
  }
  function scrollHomeTo(id){
+  window.IncloingCategoryMotion?.stop();
   const returningHome=Boolean(main.querySelector('.hero'));
   cancelSectionScroll();closeAll();if(returningHome&&id==='top'&&bootReady)typePoem();
   if(!main.querySelector('.hero')){rememberScroll();history.pushState({scroll:0},'','#/');render(0,false);}
@@ -166,12 +168,13 @@
   updateHeader();
   window.IncloingCommunity?.mount();
   if(lastMetricRoute!==key){lastMetricRoute=key;window.IncloingMetrics?.track(key);}
+  window.IncloingCategoryMotion?.enter();
  }
  function typePoem(){const token=routeToken;window.IncloingPoems?.start(document.querySelector('#typed-text'),()=>token===routeToken);}
  function lockScroll(){if(lockedScroll!==null)return;lockedScroll=window.scrollY;document.body.classList.add('modal-open');Object.assign(document.body.style,{position:'fixed',top:`-${lockedScroll}px`,width:'100%'});}
  function unlockScroll(){if(lockedScroll===null||document.querySelector('dialog[open]'))return;const y=lockedScroll;lockedScroll=null;document.body.classList.remove('modal-open');Object.assign(document.body.style,{position:'',top:'',width:''});window.scrollTo({top:y,behavior:'instant'});document.querySelector('#menu-open').setAttribute('aria-expanded','false');}
  function closeAll(){document.querySelectorAll('dialog[open]').forEach(d=>d.close());unlockScroll();}
- function openDialog(id){cancelSectionScroll();closeAll();const d=document.getElementById(id);lockScroll();try{d.showModal();}catch{unlockScroll();return;}if(id==='menu-dialog')document.querySelector('#menu-open').setAttribute('aria-expanded','true');if(id==='search-dialog'){search();document.querySelector('#search-input').focus();}}
+ function openDialog(id){window.IncloingCategoryMotion?.stop();cancelSectionScroll();closeAll();const d=document.getElementById(id);lockScroll();try{d.showModal();}catch{unlockScroll();return;}if(id==='menu-dialog')document.querySelector('#menu-open').setAttribute('aria-expanded','true');if(id==='search-dialog'){search();document.querySelector('#search-input').focus();}}
  window.IncloingDialogs=Object.freeze({open:openDialog,close:closeAll});
  document.querySelectorAll('dialog').forEach(d=>{d.addEventListener('close',unlockScroll);d.addEventListener('click',e=>{if(e.target!==d)return;const r=d.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom){d.close();unlockScroll();}});});
  document.querySelector('#menu-open').addEventListener('click',()=>openDialog('menu-dialog'));
@@ -261,8 +264,9 @@
  });
  window.addEventListener('resize',()=>{if(!scrollFrame)scrollFrame=requestAnimationFrame(updateHeader);},{passive:true});
  document.fonts.ready.then(()=>{activeSection='';updateHeader();});
- window.addEventListener('popstate',()=>render(history.state?.scroll||0,true));
- window.addEventListener('hashchange',()=>{if(routeKey()!==currentRoute)render(0,true);});
+ function restoreRoute(top=0){const update=()=>render(top,true);if(window.IncloingCategoryMotion)window.IncloingCategoryMotion.go(routeKey(),update);else update();}
+ window.addEventListener('popstate',()=>restoreRoute(history.state?.scroll||0));
+ window.addEventListener('hashchange',()=>{if(routeKey()!==currentRoute)restoreRoute();});
  reduced.addEventListener('change',()=>{main.querySelectorAll('.pending,.scene-pending').forEach(e=>e.classList.remove('pending','scene-pending'));if(reduced.matches)typePoem();});
  function uptime(){let seconds=Math.max(0,Math.floor((Date.now()-Date.parse(blog.startedAt))/1000));const days=Math.floor(seconds/86400);seconds%=86400;const hours=Math.floor(seconds/3600);seconds%=3600;document.querySelector('#uptime').textContent=`${days} 天 ${String(hours).padStart(2,'0')} 时 ${String(Math.floor(seconds/60)).padStart(2,'0')} 分 ${String(seconds%60).padStart(2,'0')} 秒`;}
  document.querySelector('#social-links').innerHTML=(blog.social||[]).map(s=>{
