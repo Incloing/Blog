@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "revision": "becdf17b-44ff-4a55-aafa-3501db3f2eef",
+  "revision": "1a99dd8f-ad5d-4486-930d-2f8ae62132d8",
   "posts": [
     {
       "id": "hello-world",
@@ -92,6 +92,21 @@
           "text": "填入真实介绍与文章，为项目补充截图、仓库地址和演示链接，逐步把这里变成自己的数字花园。"
         }
       ]
+    },
+    {
+      "id": "post-20261019-bc91c4cded17",
+      "title": "红叶解疲",
+      "markdown": "![IMG_20261019_114212](./assets/uploads/post-20261019-bc91c4cded17/8b77d1e1-491b-4987-8dd2-f4dd24eac288.webp)\n\n![IMG_20261019_114249](./assets/uploads/post-20261019-bc91c4cded17/ae401ba5-3cc4-467b-84e6-0aa88cfbe338.webp)\n虽然每天上学都很累，但总是会被一些东西化解，比如下课后走出教学楼就能看见的红叶",
+      "category": "life",
+      "date": "2026-10-19",
+      "tags": [
+        "校园风景"
+      ],
+      "excerpt": "叶子红了",
+      "cover": "assets/uploads/post-20261019-bc91c4cded17/7585cdab-ad3a-4d73-916d-d2690cdd8b69.webp",
+      "demo": false,
+      "createdAt": "2026-10-19T03:48:03.355Z",
+      "updatedAt": "2026-10-19T03:48:03.355Z"
     },
     {
       "id": "project-notes",
