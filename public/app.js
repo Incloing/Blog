@@ -272,7 +272,7 @@
    e.preventDefault();if(!e.repeat)pageHome(['ArrowUp','PageUp'].includes(e.key)||(e.key===' '&&e.shiftKey)?-1:1);
   }else if(['ArrowUp','ArrowDown','PageUp','PageDown','Home','End',' '].includes(e.key))cancelSectionScroll();
  });
- window.addEventListener('resize',()=>{if(!scrollFrame)scrollFrame=requestAnimationFrame(updateHeader);},{passive:true});
+ window.addEventListener('resize',()=>{activeSection='';if(!scrollFrame)scrollFrame=requestAnimationFrame(updateHeader);},{passive:true});
  document.fonts.ready.then(()=>{activeSection='';updateHeader();});
  function restoreRoute(top=0,back=false){const update=()=>render(top,true);if(window.IncloingCategoryMotion)window.IncloingCategoryMotion.go(routeKey(),update,{back});else update();}
  window.addEventListener('popstate',event=>{
