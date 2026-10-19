@@ -47,12 +47,10 @@ html,body,main{scroll-snap-type:none}
 .about-section{padding-top:160px}
 /* Artwork and copy enter without changing section heights or scroll positions. */
 .category-art{transition:opacity 1s var(--ease),transform 1.25s var(--ease);transform:translate3d(0,0,0) scale(1)}
-.category-copy{transition:opacity .9s var(--ease),transform 1s var(--ease)}
-.category-copy>*{transition:opacity .8s var(--ease),transform .9s var(--ease)}
-.category-copy>:nth-child(2){transition-delay:70ms}.category-copy>:nth-child(3){transition-delay:110ms}.category-copy>:nth-child(4){transition-delay:150ms}.category-copy>:nth-child(5){transition-delay:190ms}
+/* A single compositor animation owns each card's pose and opacity. */
+.category-copy,.community-card,.story-card{transform:translate3d(0,0,0);backface-visibility:hidden;-webkit-backface-visibility:hidden;transition-property:box-shadow}
+.category-copy.is-flipping,.community-card.is-flipping,.story-card.is-flipping{will-change:transform,opacity}
 .scene-pending .category-art{opacity:.55;transform:translate3d(0,24px,0) scale(1.035)}
-.scene-pending .category-copy{opacity:0;transform:translate3d(0,42px,0)}
-.scene-pending .category-copy>*{opacity:0;transform:translate3d(0,14px,0)}
 /* A persistent glass flash also covers links that immediately change the page. */
 .glass-click-layer{position:fixed;inset:0;z-index:90;overflow:hidden;pointer-events:none;contain:strict}
 .glass-click-wave{position:absolute;display:block;width:108px;height:108px;pointer-events:none;border-radius:50%;border:1px solid #ffffffd9;background:radial-gradient(ellipse at 32% 20%,#ffffffb5, #ffffff19 46%,#f0e9f249 66%,#ffffff70 78%,#ffffff00 100%);box-shadow:inset 1px 2px 6px #ffffffd9,inset -1px -2px 7px #b8c5ba38,0 3px 18px #6f82751a;backdrop-filter:blur(2px) saturate(130%);-webkit-backdrop-filter:blur(2px) saturate(130%);transform:translate(-50%,-50%);animation:glass-click .72s var(--ease) forwards}

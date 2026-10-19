@@ -22,7 +22,9 @@
  function homePaging(){return Boolean(main.querySelector('.hero,.collection-stage'))&&!document.querySelector('dialog[open]');}
  function startSectionScroll(top,id){
   const direction=Math.sign(top-window.scrollY)||1;
-  pendingFlip=id?{id,direction}:null;
+  window.IncloingCategoryMotion?.stop();
+  clearFlip();
+  if(Math.abs(top-window.scrollY)>2)prepareFlip(id,direction);
   sectionScrollTarget=top;pageAnchorId=id||nearestHomePage(top).id;
   sectionScrollActive=!reduced.matches&&Math.abs(window.scrollY-top)>2;
   clearTimeout(sectionScrollTimer);
@@ -31,18 +33,39 @@
   playPendingFlip();
   if(!sectionScrollActive)drainPageQueue();
  }
+ function clearFlip(){
+  const animation=flipAnimation;flipAnimation=null;pendingFlip=null;
+  animation?.cancel();
+  main.querySelectorAll('.is-flipping').forEach(card=>card.classList.remove('is-flipping'));
+ }
+ function prepareFlip(id,direction){
+  const section=document.getElementById(id),card=section?.querySelector('.category-copy,.community-card,.story-card');
+  if(!card||reduced.matches)return;
+  // Measure the resting layout once, before its 3D pose changes the visual bounds.
+  const rect=card.getBoundingClientRect();
+  card.style.transformOrigin=direction>0?'left center':'right center';
+  card.classList.add('is-flipping');
+  const animation=card.animate([
+   {transform:`translate3d(${direction>0?-22:22}px,0,0) rotateY(${direction>0?58:-58}deg)`,opacity:.12},
+   {transform:'translate3d(0,0,0) rotateY(0deg)',opacity:1}
+  ],{duration:650,easing:'cubic-bezier(.2,.65,.3,1)',fill:'both'});
+  animation.pause();animation.currentTime=0;
+  flipAnimation=animation;pendingFlip={card,top:rect.top+window.scrollY,height:rect.height,animation};
+  const image=section.querySelector('.category-art,.story-image img');
+  if(image){image.loading='eager';image.decoding='async';void image.decode().catch(()=>{});}
+  animation.finished.then(()=>{
+   if(flipAnimation!==animation)return;
+   // The base style matches the last frame; releasing it cannot restart a CSS transition.
+   flipAnimation=null;pendingFlip=null;animation.cancel();card.classList.remove('is-flipping');drainPageQueue();
+  },()=>{});
+ }
  function playPendingFlip(){
   if(!pendingFlip)return;
-  const {id,direction}=pendingFlip,section=document.getElementById(id),card=section?.querySelector('.category-copy,.community-card,.story-card');
-  if(!card||reduced.matches){pendingFlip=null;return;}
-  const box=card.getBoundingClientRect();
-  if(box.top>window.innerHeight*.92||box.bottom<125)return;
-  pendingFlip=null;flipAnimation?.cancel();
-  card.style.transformOrigin=direction>0?'left center':'right center';
-  flipAnimation=card.animate([
-   {transform:`perspective(1100px) translateX(${direction>0?-22:22}px) rotateY(${direction>0?58:-58}deg)`,opacity:.12},
-   {transform:'perspective(1100px) translateX(0) rotateY(0deg)',opacity:1}
-  ],{duration:850,easing:'cubic-bezier(.22,1,.36,1)',fill:'none'});
+  const {card,top,height,animation}=pendingFlip;
+  if(!card.isConnected||reduced.matches){clearFlip();return;}
+  const visibleTop=top-window.scrollY;
+  if(visibleTop>window.innerHeight+96||visibleTop+height< -96)return;
+  pendingFlip=null;animation.play();
  }
  function homePages(){
   const max=Math.max(0,document.documentElement.scrollHeight-window.innerHeight),pages=[];
@@ -54,9 +77,9 @@
  function nearestHomePage(y=window.scrollY){return homePages().reduce((a,b)=>Math.abs(a.top-y)<=Math.abs(b.top-y)?a:b,{id:'top',top:0});}
  function finishSectionScroll(){if(homeReturning&&window.scrollY<=3)homeReturning=false;sectionScrollActive=false;clearTimeout(sectionScrollTimer);playPendingFlip();drainPageQueue();}
  function drainPageQueue(){
-  if(pageDrainFrame||sectionScrollActive||!homePaging()||!pageQueue.length)return;
+  if(pageDrainFrame||sectionScrollActive||flipAnimation||!homePaging()||!pageQueue.length)return;
   pageDrainFrame=requestAnimationFrame(()=>{
-   pageDrainFrame=0;if(sectionScrollActive||!homePaging()||!pageQueue.length)return;
+   pageDrainFrame=0;if(sectionScrollActive||flipAnimation||!homePaging()||!pageQueue.length)return;
    const pages=homePages(),from=Math.max(0,pages.findIndex(p=>p.id===pageAnchorId)),direction=pageQueue.shift();
    const to=Math.max(0,Math.min(pages.length-1,from+direction));
    if(to===from){drainPageQueue();return;}
@@ -86,7 +109,7 @@
  function about(standalone=false){
   return `<section class="about-section ${standalone?'route-enter':''}" id="intro" aria-labelledby="about-heading"><div class="about-inner reveal"><p class="section-kicker">01 / A LITTLE ABOUT ME</p><div class="avatar-wrap glass"><img src="./assets/avatar.webp" alt="Incloing 的头像" width="96" height="96" loading="lazy"></div><h${standalone?'1':'2'} class="about-title" id="about-heading">你好，我是 <em>Incloing</em>。</h${standalone?'1':'2'}><p class="about-tagline">${esc(blog.tagline)}</p><div class="profile-facts" aria-label="个人资料，点击图标查看">${profileFacts()}</div><div class="bio-placeholder">${bioHtml(standalone)}</div>${standalone?`<a class="about-next" href="#/">回到首页 ${icon('arrow_forward')}</a>`:`<button class="text-button about-next" data-scroll="category-notes">继续探索 ${icon('arrow_downward')}</button>`}</div></section>`;
  }
- function home(){return `<section class="hero" aria-label="欢迎来到 Incloing"><picture><source media="(max-width:700px) and (orientation:portrait)" srcset="./assets/hero-pastel-mobile.webp"><img class="hero-bg" src="./assets/hero-pastel.webp" alt="浅粉与淡紫的天空、镜面圆环和绿色起伏的山丘" width="1672" height="941" fetchpriority="high"></picture><div class="hero-copy"><p class="hero-eyebrow">A LITTLE CORNER OF THE INTERNET</p><h1 class="poem" aria-label="${esc(blog.heroText)}"><span class="poem-reserve" aria-hidden="true">${esc(blog.heroText)}</span><span class="poem-typed" aria-hidden="true"><span id="typed-text"></span><i class="typing-cursor"></i></span></h1><p class="welcome">欢迎来到Incloing的个人主页</p></div><button class="scroll-cue text-button" data-scroll="intro"><span>向下，认识一下我</span><span class="icon-button glass">${icon('arrow_downward')}</span></button></section>${about()}${blog.categories.map((c,i)=>`<section class="category-section ${c.id}-scene" id="category-${c.id}" aria-labelledby="category-title-${c.id}"><img class="category-art" src="${cover(c.id)}" alt="${esc(c.artAlt)}" loading="lazy" width="1000" height="1000"><div class="category-copy glass reveal"><span class="section-no">0${i+2} / ${esc(c.english)}</span><h2 id="category-title-${c.id}">${esc(c.title)}</h2><p class="category-english">${esc(c.subtitle)}</p><p class="category-desc">${esc(c.description)}</p><a class="pill-link glass" href="#/${c.id}">进入${esc(c.title)} ${icon('arrow_forward')}</a></div><span class="section-edge" aria-hidden="true">THINK · BUILD · LIVE</span></section>`).join('')}${window.IncloingCommunity?.sections()||''}`;}
+ function home(){return `<section class="hero" aria-label="欢迎来到 Incloing"><picture><source media="(max-width:700px) and (orientation:portrait)" srcset="./assets/hero-pastel-mobile.webp"><img class="hero-bg" src="./assets/hero-pastel.webp" alt="浅粉与淡紫的天空、镜面圆环和绿色起伏的山丘" width="1672" height="941" fetchpriority="high"></picture><div class="hero-copy"><p class="hero-eyebrow">A LITTLE CORNER OF THE INTERNET</p><h1 class="poem" aria-label="${esc(blog.heroText)}"><span class="poem-reserve" aria-hidden="true">${esc(blog.heroText)}</span><span class="poem-typed" aria-hidden="true"><span id="typed-text"></span><i class="typing-cursor"></i></span></h1><p class="welcome">欢迎来到Incloing的个人主页</p></div><button class="scroll-cue text-button" data-scroll="intro"><span>向下，认识一下我</span><span class="icon-button glass">${icon('arrow_downward')}</span></button></section>${about()}${blog.categories.map((c,i)=>`<section class="category-section ${c.id}-scene" id="category-${c.id}" aria-labelledby="category-title-${c.id}"><img class="category-art" src="${cover(c.id)}" alt="${esc(c.artAlt)}" loading="lazy" decoding="async" width="1000" height="1000"><div class="category-copy glass reveal"><span class="section-no">0${i+2} / ${esc(c.english)}</span><h2 id="category-title-${c.id}">${esc(c.title)}</h2><p class="category-english">${esc(c.subtitle)}</p><p class="category-desc">${esc(c.description)}</p><a class="pill-link glass" href="#/${c.id}">进入${esc(c.title)} ${icon('arrow_forward')}</a></div><span class="section-edge" aria-hidden="true">THINK · BUILD · LIVE</span></section>`).join('')}${window.IncloingCommunity?.sections()||''}`;}
  function collection(id){
   const c=cat(id),posts=sorted().filter(p=>p.category===id),allTags=[...new Set(posts.flatMap(p=>p.tags))];
   return `<section class="inner-page route-enter">${crumbs(c.title)}<div class="collection-header"><div><span class="collection-count">${esc(c.english)} / ${String(posts.length).padStart(2,'0')} 篇</span><h1>${esc(c.title)}</h1><p>${esc(c.description)}</p></div><img class="collection-cover" src="${cover(id)}" alt="${esc(c.artAlt)}" width="500" height="300"></div><div class="filters" aria-label="按主题筛选"><button class="filter-button" data-tag="" aria-pressed="true">全部</button>${allTags.map(t=>`<button class="filter-button" data-tag="${esc(t)}" aria-pressed="false">${esc(t)}</button>`).join('')}</div><div id="post-list" aria-live="polite">${posts.map(row).join('')}</div><div id="collection-notice">${sampleNotice(posts)}</div></section>`;
@@ -125,7 +148,7 @@
   startSectionScroll(Math.min(target.offsetTop,Math.max(0,document.documentElement.scrollHeight-window.innerHeight)),id);
  }
  function cancelSectionScroll(){
-  pendingFlip=null;flipAnimation?.cancel();flipAnimation=null;
+  clearFlip();
   pageQueue=[];cancelAnimationFrame(pageDrainFrame);pageDrainFrame=0;clearTimeout(sectionScrollTimer);
   if(sectionScrollActive){sectionScrollActive=false;window.scrollTo({top:window.scrollY,left:window.scrollX,behavior:'instant'});}
   if(main.querySelector('.hero'))pageAnchorId=nearestHomePage().id;
@@ -170,7 +193,7 @@
   window.scrollTo({top,behavior:'instant'});if(focus)main.focus({preventScroll:true});
   if(!reduced.matches && 'IntersectionObserver' in window){
    observer=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){e.target.classList.remove('pending','scene-pending');if(e.target.classList.contains('category-section'))e.target.classList.add('scene-visible');observer.unobserve(e.target);}}),{threshold:.1,rootMargin:'0px 0px -5% 0px'});
-   main.querySelectorAll('.reveal:not(.category-copy)').forEach(el=>{el.classList.add('pending');observer.observe(el);});
+   main.querySelectorAll('.reveal:not(.category-copy):not(.community-card)').forEach(el=>{el.classList.add('pending');observer.observe(el);});
    main.querySelectorAll('.category-section').forEach(el=>{el.classList.add('scene-pending');observer.observe(el);});
   }
   if(bootReady)typePoem();
@@ -286,7 +309,7 @@
   restoreRoute(target.scroll||0,back);
  });
  window.addEventListener('hashchange',()=>{if(routeKey()!==currentRoute)restoreRoute();});
- reduced.addEventListener('change',()=>{main.querySelectorAll('.pending,.scene-pending').forEach(e=>e.classList.remove('pending','scene-pending'));if(reduced.matches)typePoem();});
+ reduced.addEventListener('change',()=>{if(reduced.matches){clearFlip();drainPageQueue();}main.querySelectorAll('.pending,.scene-pending').forEach(e=>e.classList.remove('pending','scene-pending'));if(reduced.matches)typePoem();});
  function uptime(){let seconds=Math.max(0,Math.floor((Date.now()-Date.parse(blog.startedAt))/1000));const days=Math.floor(seconds/86400);seconds%=86400;const hours=Math.floor(seconds/3600);seconds%=3600;document.querySelector('#uptime').textContent=`${days} 天 ${String(hours).padStart(2,'0')} 时 ${String(Math.floor(seconds/60)).padStart(2,'0')} 分 ${String(seconds%60).padStart(2,'0')} 秒`;}
  document.querySelector('#social-links').innerHTML=(blog.social||[]).map(s=>{
   const graphic=`<img src="./assets/social/${esc(s.id)}.svg" width="22" height="22" alt="" loading="lazy"><span class="social-tooltip" aria-hidden="true">${esc(s.label)}</span>`;
