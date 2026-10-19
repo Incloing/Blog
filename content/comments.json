@@ -5,13 +5,17 @@
       "id": 1,
       "name": "Incloing",
       "body": "欢迎大家在此留言，可以给出宝贵的建议或者想要了解的内容，随便留个痕也行",
-      "created_at": "2026-10-17T08:49:34Z"
+      "created_at": "2026-10-17T08:49:34Z",
+      "pinned": 1,
+      "is_owner": 1
     },
     {
       "id": 2,
       "name": "jiaomujunila4",
       "body": "Ciallo",
-      "created_at": "2026-10-17T14:53:30.582Z"
+      "created_at": "2026-10-17T14:53:30.582Z",
+      "pinned": 0,
+      "is_owner": 0
     }
   ]
 }
