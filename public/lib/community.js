@@ -3,6 +3,7 @@
  'use strict';
  const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
  const icon=name=>`<span class="mi" aria-hidden="true">${name}</span>`;
+ let loadPromise=Promise.resolve();
  let unsubscribe,comments=[],cacheAt=0,loading=false,error='',previousPage=0,refreshTimer=0,returnTimer=0,visibilityObserver;
  const writeLink=()=>`<button class="pill-link glass" type="button" data-comment-open>写一条留言 ${icon('edit_note')}</button>`;
  const note='<p class="guestbook-note">留言会保留在这里，无需注册账号。谢谢你留下的一点回声。</p>';
@@ -19,7 +20,7 @@
  function messageHtml(comment){
   const text=comment.body;
   const author=esc(comment.name||'访客');
-  return `<article class="guestbook-message" data-comment-id="${comment.id}"><div class="guestbook-message-meta"><strong>${author}</strong><time class="guestbook-date" datetime="${esc(comment.date)}">${esc(new Date(comment.date).toLocaleDateString('zh-CN'))}</time></div><p>${esc(text)}</p></article>`;
+  return `<article class="guestbook-message" data-comment-id="${comment.id}"><div class="guestbook-message-meta"><strong>${author}</strong>${comment.owner?'<span class="guestbook-badge">站主</span>':''}${comment.pinned?'<span class="guestbook-badge guestbook-pin">置顶</span>':''}<time class="guestbook-date" datetime="${esc(comment.date)}">${esc(new Date(comment.date).toLocaleDateString('zh-CN'))}</time></div><p>${esc(text)}</p></article>`;
  }
  function paint(){
   const active=document.activeElement,readers=[...document.querySelectorAll('[data-guestbook-scroll]')].map(pane=>({pane,top:pane.scrollTop,focus:pane.contains(active),more:active?.matches('[data-community-more]'),href:active?.getAttribute('href')}));
@@ -30,24 +31,24 @@
    if(error)html+=`<p class="guestbook-error" role="status">${esc(error)} <button class="text-button" type="button" data-community-refresh>重试</button></p>`;
    host.innerHTML=html;
   });
-  document.querySelectorAll('[data-guestbook-more]').forEach(host=>{host.innerHTML=loading?'<p class="guestbook-state" role="status">正在读取留言…</p>':previousPage>0?'<button type="button" class="pill-link glass" data-community-more>再看一些留言 <span class="mi" aria-hidden="true">expand_more</span></button>':comments.length?'<p class="guestbook-state">已经读到最后一条留言了。</p>':'';});
+  document.querySelectorAll('[data-guestbook-more]').forEach(host=>{host.innerHTML=loading?'<p class="guestbook-state" role="status">正在读取留言…</p>':previousPage?'<button type="button" class="pill-link glass" data-community-more>再看一些留言 <span class="mi" aria-hidden="true">expand_more</span></button>':comments.length?'<p class="guestbook-state">已经读到最后一条留言了。</p>':'';});
   document.querySelectorAll('[data-community-refresh]').forEach(button=>{button.disabled=loading;});
   for(const reader of readers){reader.pane.scrollTop=reader.top;if(reader.focus&&!reader.pane.contains(document.activeElement)){const target=reader.more?reader.pane.querySelector('[data-community-more]'):[...reader.pane.querySelectorAll('a')].find(link=>link.getAttribute('href')===reader.href);(target||reader.pane).focus({preventScroll:true});}}
  }
  function normalized(list){
   if(!Array.isArray(list))throw new Error('留言格式不正确。');
-  return list.filter(item=>item&&Number.isSafeInteger(item.id)&&item.id>0&&typeof item.body==='string'&&!Number.isNaN(Date.parse(item.created_at))).map(item=>({id:item.id,body:item.body.slice(0,66000),date:item.created_at,name:typeof item.name==='string'?item.name.slice(0,40):'访客'}));
+  return list.filter(item=>item&&Number.isSafeInteger(item.id)&&item.id>0&&typeof item.body==='string'&&!Number.isNaN(Date.parse(item.created_at))).map(item=>({id:item.id,body:item.body.slice(0,66000),date:item.created_at,name:typeof item.name==='string'?item.name.slice(0,40):'访客',pinned:item.pinned===1||item.pinned===true,owner:item.is_owner===1||item.is_owner===true}));
  }
  async function load({more=false,force=false}={}){
-  if(loading)return;if(!more&&!force&&Date.now()-cacheAt<60000){paint();return;}
-  const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),10000);loading=true;error='';paint();
+  if(loading){if(force){await loadPromise;return load({force:true});}return;}if(!more&&!force&&Date.now()-cacheAt<60000){paint();return;}
+  const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),10000);loading=true;let complete;loadPromise=new Promise(resolve=>{complete=resolve;});error='';paint();
   try{
-   const response=await fetch(window.IncloingRuntime.api('/api/comments'+(more&&previousPage?'?before='+previousPage:'')),{cache:'no-store',signal:controller.signal});
+   const response=await fetch(window.IncloingRuntime.api('/api/comments'+(more&&previousPage?'?before='+encodeURIComponent(previousPage):'')),{cache:'no-store',signal:controller.signal});
    if(!response.ok)throw new Error('暂时无法读取留言，请稍后再试。');const result=await response.json();
    const merged=more?new Map(comments.map(comment=>[comment.id,comment])):new Map();normalized(result.comments).forEach(comment=>merged.set(comment.id,comment));
-   comments=[...merged.values()].sort((a,b)=>b.id-a.id);previousPage=result.next||0;cacheAt=Date.now();
+   comments=[...merged.values()].sort((a,b)=>Number(b.pinned)-Number(a.pinned)||b.id-a.id);previousPage=result.next||0;cacheAt=Date.now();
   }catch(reason){error=reason.name==='AbortError'?'读取稍慢，可以再试一次。':reason.message||'暂时无法读取留言。';}
-  finally{clearTimeout(timeout);loading=false;paint();}
+  finally{clearTimeout(timeout);loading=false;paint();complete();}
  }
  function mount(){
   unsubscribe?.();unsubscribe=undefined;
@@ -76,8 +77,9 @@
  form.addEventListener('submit',async event=>{
   event.preventDefault();if(submitting)return;submitting=true;const button=document.getElementById('comment-submit'),status=document.getElementById('comment-status');button.disabled=true;status.textContent='正在保存留言…';
   try{
-   const response=await fetch(window.IncloingRuntime.api('/api/comments'),{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify({name:document.getElementById('comment-name').value,message:document.getElementById('comment-message').value,website:document.getElementById('comment-website').value}),signal:AbortSignal.timeout(12000)}),result=await response.json();
-   if(!response.ok)throw new Error(result.error||'留言未能保存，请稍后再试。');document.getElementById('comment-message').value='';status.textContent='留言已发布，谢谢你的来访。';await load({force:true});
+   const headers={'Content-Type':'application/json'};if(!window.IncloingRuntime.mirror){try{const session=await fetch('/api/auth/session',{credentials:'same-origin',cache:'no-store',signal:AbortSignal.timeout(5000)});if(session.ok)headers['X-CSRF-Token']=(await session.json()).csrf;}catch{}}
+   const response=await fetch(window.IncloingRuntime.api('/api/comments'),{method:'POST',headers,credentials:'same-origin',body:JSON.stringify({name:document.getElementById('comment-name').value,message:document.getElementById('comment-message').value,website:document.getElementById('comment-website').value}),signal:AbortSignal.timeout(12000)}),result=await response.json();
+   if(!response.ok)throw new Error(result.error||'留言未能保存，请稍后再试。');document.getElementById('comment-message').value='';status.textContent=result.comment?.is_owner?'站主留言已发布并置顶。':'留言已发布，谢谢你的来访。';await load({force:true});
   }catch(reason){status.textContent=reason.name==='TimeoutError'?'网络较慢，请先刷新留言查看是否已提交，再决定重试。':reason.message;}
   finally{submitting=false;button.disabled=false;}
  });

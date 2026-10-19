@@ -9,17 +9,17 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' blob: data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-src 'none'">
   <title>写作 · Incloing</title>
   <link rel="icon" href="../assets/avatar.webp">
-  <link rel="stylesheet" href="./admin.css?v=site-polish-20261019-r1">
+  <link rel="stylesheet" href="./admin.css?v=guestbook-leaves-20261019-r1">
   <script defer src="../assets/vendor/marked.min.js"></script>
   <script defer src="../assets/vendor/purify.min.js"></script>
-  <script src="../lib/attachments.js?v=site-polish-20261019-r1" defer></script><script defer src="../lib/article.js?v=site-polish-20261019-r1"></script>
-  <script defer src="../content.js?v=site-polish-20261019-r1"></script>
-  <script defer src="../lib/profile.js?v=site-polish-20261019-r1"></script>
-  <script defer src="./profile.js?v=site-polish-20261019-r1"></script>
-  <script defer src="./management.js?v=site-polish-20261019-r1"></script>
-  <script defer src="./server.js?v=site-polish-20261019-r1"></script>
-  <script defer src="./gate.js?v=site-polish-20261019-r1"></script>
-<link rel="stylesheet" href="../lib/reading.css?v=site-polish-20261019-r1"><link rel="stylesheet" href="./media.css?v=site-polish-20261019-r1"><link rel="stylesheet" href="../lib/fonts.css?v=site-polish-20261019-r1"><link rel="stylesheet" href="../lib/site-polish.css?v=site-polish-20261019-r1"><script src="../lib/leaves.js?v=site-polish-20261019-r1" defer></script></head>
+  <script src="../lib/attachments.js?v=guestbook-leaves-20261019-r1" defer></script><script defer src="../lib/article.js?v=guestbook-leaves-20261019-r1"></script>
+  <script defer src="../content.js?v=guestbook-leaves-20261019-r1"></script>
+  <script defer src="../lib/profile.js?v=guestbook-leaves-20261019-r1"></script>
+  <script defer src="./profile.js?v=guestbook-leaves-20261019-r1"></script>
+  <script defer src="./management.js?v=guestbook-leaves-20261019-r1"></script>
+  <script defer src="./server.js?v=guestbook-leaves-20261019-r1"></script>
+  <script defer src="./gate.js?v=guestbook-leaves-20261019-r1"></script>
+<link rel="stylesheet" href="../lib/reading.css?v=guestbook-leaves-20261019-r1"><link rel="stylesheet" href="./media.css?v=guestbook-leaves-20261019-r1"><link rel="stylesheet" href="../lib/fonts.css?v=guestbook-leaves-20261019-r1"><link rel="stylesheet" href="../lib/site-polish.css?v=guestbook-leaves-20261019-r1"><script src="../lib/leaves.js?v=guestbook-leaves-20261019-r1" defer></script></head>
 <body>
   <div class="ambient" aria-hidden="true"></div>
   <main id="writer-lock" class="writer-lock">
@@ -87,7 +87,7 @@
     <p id="profile-status" class="publish-status" role="status" aria-live="polite"></p><a class="profile-view" href="../#/about" target="_blank" rel="noopener noreferrer">查看我的介绍 ↗</a>
   </dialog>
   <dialog id="connect-dialog" class="glass modal compact-modal" aria-labelledby="account-title"><div class="dialog-top"><h2 id="account-title">账户设置</h2><button type="button" class="close-button" data-close="connect-dialog" aria-label="关闭账户设置"><span class="close-mark" aria-hidden="true"></span></button></div><p class="dialog-copy">已登录 Incloing 的写作空间。此设备会保持登录，退出后需重新输入密码。</p><form id="password-form"><label class="token-label" for="current-password">当前密码</label><input id="current-password" type="password" autocomplete="current-password" maxlength="128" required><label class="token-label" for="new-password">新密码</label><input id="new-password" type="password" autocomplete="new-password" minlength="6" maxlength="128" required><p id="password-status" class="form-error" role="status"></p><button id="password-submit" class="primary full-button" type="submit">修改密码并重新登录</button></form><button type="button" id="disconnect-button" class="secondary full-button">退出登录</button></dialog>
-  <dialog id="comments-dialog" class="glass modal profile-modal" aria-labelledby="comments-title"><div class="dialog-top"><h2 id="comments-title">管理留言</h2><button type="button" class="close-button" data-close="comments-dialog" aria-label="关闭留言管理"><span class="close-mark" aria-hidden="true"></span></button></div><div id="admin-comments"></div><button type="button" id="admin-comments-more" class="quiet" hidden>更早的留言</button><p id="admin-comments-status" class="publish-status" role="status"></p></dialog>
+  <dialog id="comments-dialog" class="glass modal profile-modal" aria-labelledby="comments-title"><div class="dialog-top"><h2 id="comments-title">管理留言</h2><button type="button" class="close-button" data-close="comments-dialog" aria-label="关闭留言管理"><span class="close-mark" aria-hidden="true"></span></button></div><form id="owner-comment-form" class="owner-comment-form"><label for="owner-comment-message">写一条站主留言</label><textarea id="owner-comment-message" rows="3" maxlength="2000" required placeholder="一个问候，一条近况……"></textarea><p>以 Incloing 的站主身份发布，会自动置顶。</p><button id="owner-comment-submit" type="submit" class="secondary">发布并置顶</button></form><div id="admin-comments"></div><button type="button" id="admin-comments-more" class="quiet" hidden>更早的留言</button><p id="admin-comments-status" class="publish-status" role="status"></p></dialog>
   <dialog id="confirm-dialog" class="glass modal compact-modal"><div class="dialog-top"><h2 id="confirm-title">删除本机草稿？</h2></div><p id="confirm-description" class="dialog-copy">这只会删除当前浏览器内的草稿，网站上已发布的文章会保留。</p><div class="confirm-actions"><button type="button" id="confirm-cancel" class="secondary">取消</button><button type="button" id="confirm-ok" class="primary">删除草稿</button></div></dialog>
   <div id="toast" class="toast glass" role="status" aria-live="polite"></div><div id="click-layer" class="click-layer" aria-hidden="true"></div>
   </div>

@@ -1,7 +1,7 @@
 (() => {
  'use strict';
  window.BlogManagement={init({getClient,getCurrent,confirm,busy,setBusy,onRemoved,save,status,toast}){
-  const $=id=>document.getElementById(id);let next=null,commentsBusy=false;
+  const $=id=>document.getElementById(id);let next=null,commentsBusy=false,ownerPosting=false;
   async function storage(){try{const result=await getClient().request('storage');$('storage-state').textContent=`文件空间 ${(result.used/1024/1024).toFixed(1)} / ${result.limit/1024/1024} MB · 图片 2MB · 附件 10MB`;}catch{$('storage-state').textContent='暂时无法读取文件空间';}}
   void storage();window.addEventListener('incloing:uploaded',()=>void storage());
   const sync=document.createElement('p');sync.className='storage-state';sync.id='github-sync-state';$('storage-state').after(sync);
@@ -21,12 +21,20 @@
    const article=document.createElement('article');article.className='managed-comment';const name=document.createElement('strong'),body=document.createElement('p'),date=document.createElement('time'),button=document.createElement('button');
    name.textContent=item.name;body.textContent=item.body;date.textContent=new Date(item.created_at).toLocaleString('zh-CN');button.type='button';button.className='quiet danger';button.textContent='删除留言';
    button.addEventListener('click',async()=>{if(!await confirm('删除这条留言？','留言删除后，将不再在网站上显示。','删除留言'))return;button.disabled=true;try{await getClient().request('comments/delete',{id:item.id});article.remove();}catch(error){$('admin-comments-status').textContent=error.message;button.disabled=false;}});
-   article.append(name,date,body,button);return article;
+   const pin=document.createElement('button'),actions=document.createElement('div');actions.className='managed-comment-actions';pin.type='button';pin.className='quiet';
+   function paintPin(){pin.textContent=item.pinned?'取消置顶':'置顶留言';pin.setAttribute('aria-pressed',String(Boolean(item.pinned)));name.textContent=item.name+(item.is_owner?' · 站主':'')+(item.pinned?' · 置顶':'');}
+   pin.addEventListener('click',async()=>{if(commentsBusy||ownerPosting)return;pin.disabled=true;try{const result=await getClient().request('comments/pin',{id:item.id,pinned:!item.pinned});item=result.comment;paintPin();await load();}catch(error){$('admin-comments-status').textContent=error.message;}finally{pin.disabled=false;}});
+   paintPin();actions.append(pin,button);article.append(name,date,body,actions);return article;
   }
   async function load(more=false){if(commentsBusy)return;commentsBusy=true;$('admin-comments-status').textContent='正在读取留言…';
    try{const result=await getClient().request('comments'+(more&&next?'?before='+next:''));if(!more)$('admin-comments').replaceChildren();for(const item of result.comments)$('admin-comments').append(messageElement(item));next=result.next;$('admin-comments-more').hidden=!next;$('admin-comments-status').textContent=$('admin-comments').children.length?'':'还没有留言。';}
    catch(error){$('admin-comments-status').textContent=error.message;}finally{commentsBusy=false;}
   }
+  $('owner-comment-form').addEventListener('submit',async event=>{
+   event.preventDefault();if(commentsBusy||ownerPosting||busy())return;const input=$('owner-comment-message'),button=$('owner-comment-submit'),message=input.value.trim();if(!message)return;ownerPosting=true;button.disabled=true;$('admin-comments-status').textContent='正在发布站主留言…';
+   try{await getClient().request('comments',{message});input.value='';await load();$('admin-comments-status').textContent='站主留言已发布并置顶。';}
+   catch(error){$('admin-comments-status').textContent=error.message;}finally{ownerPosting=false;button.disabled=false;}
+  });
   $('comments-open').addEventListener('click',()=>{$('comments-dialog').showModal();void load();});$('admin-comments-more').addEventListener('click',()=>void load(true));
   $('password-form').addEventListener('submit',async event=>{
    event.preventDefault();if(busy())return;$('password-submit').disabled=true;$('password-status').textContent='';let currentPassword=$('current-password').value,newPassword=$('new-password').value;$('current-password').value='';$('new-password').value='';

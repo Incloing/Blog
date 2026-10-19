@@ -4,7 +4,7 @@
  const form=document.getElementById('unlock-form'),input=document.getElementById('writer-password'),button=document.getElementById('unlock-button'),error=document.getElementById('unlock-error');let busy=false;
  async function open(csrf){
   window.BlogWriter=await window.BlogServer.connect(csrf);
-  await new Promise((resolve,reject)=>{const script=document.createElement('script');script.src='./admin.js?v=site-polish-20261019-r1';script.onload=resolve;script.onerror=()=>{script.remove();reject(new Error('后台载入失败，请刷新重试。'));};document.head.append(script);});
+  await new Promise((resolve,reject)=>{const script=document.createElement('script');script.src='./admin.js?v=guestbook-leaves-20261019-r1';script.onload=resolve;script.onerror=()=>{script.remove();reject(new Error('后台载入失败，请刷新重试。'));};document.head.append(script);});
   const shell=document.getElementById('writer-shell');shell.hidden=false;shell.inert=false;document.getElementById('writer-lock').remove();
  }
  form.addEventListener('submit',async event=>{

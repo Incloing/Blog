@@ -10,7 +10,7 @@ export async function handleSync(request,env,h){
  if(path==='/api/sync/export'&&request.method==='GET'){
   const snapshot=(await document(db)).value,manifest={version:1,revision:snapshot.revision,posts:snapshot.posts,profile:profile(snapshot.profile||{})};
   if(snapshot.profileUpdatedAt)manifest.profileUpdatedAt=snapshot.profileUpdatedAt;
-  const {results:comments}=await query(db,'SELECT id,name,body,created_at FROM comments ORDER BY id LIMIT 5001').all();
+  const {results:comments}=await query(db,'SELECT id,name,body,created_at,pinned,is_owner FROM comments ORDER BY id LIMIT 5001').all();
   if(comments.length>5000)fail('留言数量超过单次快照限制，请分批导出。',413);
   const paths=new Set();for(const p of manifest.posts){if(p.cover)paths.add(p.cover);for(const match of (p.markdown||'').matchAll(/assets\/uploads\/[a-z0-9_-]+\/[a-zA-Z0-9_-]+\.(?:webp|png|jpe?g|gif)/g))paths.add(match[0]);}if(manifest.profile.rewardQr)paths.add(manifest.profile.rewardQr);
   const images=[];for(const key of paths){const row=await query(db,'SELECT key,mime,size,etag FROM images WHERE key=?',key).first();if(row){images.push(row);continue;}

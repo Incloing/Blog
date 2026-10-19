@@ -172,13 +172,21 @@ async function handle(request,env,ctx){
  }
  if(path==='/api/storage'&&request.method==='GET'){await session(request,db);const row=await query(db,'SELECT (SELECT COALESCE(SUM(size),0) FROM images)+(SELECT COALESCE(SUM(size),0) FROM attachments) AS used,(SELECT COUNT(*) FROM images) AS images,(SELECT COUNT(*) FROM attachments) AS attachments').first();return json({...row,limit:200*1024*1024,singleImageLimit:2*1024*1024,singleAttachmentLimit:rules.limit});}
  if(path==='/api/comments'&&request.method==='GET'){
-  const before=Number(url.searchParams.get('before')||Number.MAX_SAFE_INTEGER);if(!Number.isSafeInteger(before)||before<1)fail('留言分页参数无效。');
-  const {results}=await query(db,'SELECT id,name,body,created_at FROM comments WHERE id<? ORDER BY id DESC LIMIT 21',before).all(),items=results.slice(0,20);return json({comments:items,next:results.length>20?items.at(-1).id:null});
+  const cursor=url.searchParams.get('before');let pin=1,before=Number.MAX_SAFE_INTEGER;
+  if(cursor){const match=/^([01]):([1-9]\d*)$/.exec(cursor);if(match){pin=Number(match[1]);before=Number(match[2]);}else{pin=0;before=Number(cursor);}if(!Number.isSafeInteger(before)||before<1)fail('留言分页参数无效。');}
+  const {results}=await query(db,'SELECT id,name,body,created_at,pinned,is_owner FROM comments WHERE pinned<? OR (pinned=? AND id<?) ORDER BY pinned DESC,id DESC LIMIT 21',pin,pin,before).all(),items=results.slice(0,20),last=items.at(-1);
+  return json({comments:items,next:results.length>20?(last.pinned?'1:'+last.id:last.id):null});
  }
  if(path==='/api/comments'&&request.method==='POST'){
-  const data=await body(request,16000);if(data.website)fail('留言未提交，请稍后再试。');await limit(db,request,'comment',3,10*60000);
-  const name=text(data.name,40,'昵称'),message=text(data.message,2000,'留言'),created=new Date().toISOString();
-  const comment=await query(db,'INSERT INTO comments(name,body,created_at) VALUES(?,?,?) RETURNING id,name,body,created_at',name,message,created).first();return json({comment},201);
+  const data=await body(request,16000);if(data.website)fail('留言未提交，请稍后再试。');let owner=false;
+  if(request.headers.has('X-CSRF-Token')){await session(request,db,true);owner=true;}
+  await limit(db,request,owner?'owner-comment':'comment',owner?20:3,owner?60000:10*60000);
+  const name=owner?'Incloing':text(data.name,40,'昵称'),message=text(data.message,2000,'留言'),created=new Date().toISOString();
+  const comment=await query(db,'INSERT INTO comments(name,body,created_at,pinned,is_owner) VALUES(?,?,?,?,?) RETURNING id,name,body,created_at,pinned,is_owner',name,message,created,owner?1:0,owner?1:0).first();return json({comment},201);
+ }
+ if(path==='/api/comments/pin'&&request.method==='POST'){
+  await session(request,db,true);const data=await body(request,1024);if(!Number.isSafeInteger(data.id)||data.id<1||typeof data.pinned!=='boolean')fail('留言置顶参数无效。');
+  const comment=await query(db,'UPDATE comments SET pinned=? WHERE id=? RETURNING id,name,body,created_at,pinned,is_owner',data.pinned?1:0,data.id).first();if(!comment)fail('这条留言已被删除，请刷新留言列表。',404);return json({comment});
  }
  if(path==='/api/comments/delete'&&request.method==='POST'){
   await session(request,db,true);const data=await body(request,1024);if(!Number.isSafeInteger(data.id)||data.id<1)fail('留言标识无效。');await query(db,'DELETE FROM comments WHERE id=?',data.id).run();return json({ok:true});
