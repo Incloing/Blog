@@ -1,4 +1,5 @@
 import {handleSync} from './sync.mjs';
+import {rules,storeAttachment,checkAttachments} from './attachments.mjs';
 const encoder=new TextEncoder(),DAY=86400000;
 const json=(value,status=200,extra={})=>new Response(JSON.stringify(value),{status,headers:{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff',...extra}});
 class ApiError extends Error{constructor(message,status=400,code='VALIDATION'){super(message);this.status=status;this.code=code;}}
@@ -76,7 +77,8 @@ function post(value,base){
  if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!Number.isFinite(Date.parse(date+'T00:00:00Z'))||new Date(date+'T00:00:00Z').toISOString().slice(0,10)!==date)fail('文章日期无效。');
  if(!Array.isArray(value.tags)||value.tags.length>12||value.tags.some(tag=>typeof tag!=='string'||tag.length>40))fail('标签格式或长度不正确。');
  if(/!\[[^\]]*\]\(\s*<?(?:blob:|data:)/i.test(markdown))fail('请使用上传按钮添加图片，正文仍包含临时图片。');
- const now=new Date().toISOString();return {id:value.id,title,markdown,category:value.category,date,tags:[...new Set(value.tags.map(t=>t.trim()).filter(Boolean))],excerpt:text(value.excerpt??'',400,'摘要',true),cover:imagePath(value.cover),demo:false,createdAt:base?.createdAt||now,updatedAt:now};
+ let attachments;try{attachments=rules.normalize(value.attachments);}catch(error){fail(error.message);}
+ const now=new Date().toISOString();return {...(attachments.length?{attachments}:{}),id:value.id,title,markdown,category:value.category,date,tags:[...new Set(value.tags.map(t=>t.trim()).filter(Boolean))],excerpt:text(value.excerpt??'',400,'摘要',true),cover:imagePath(value.cover),demo:false,createdAt:base?.createdAt||now,updatedAt:now};
 }
 function samePost(snapshot,id,base){const existing=snapshot.value.posts.find(item=>item.id===id);if(base?(!existing||base.id!==id||stable(base)!==stable(existing)):Boolean(existing))fail('这篇文章已被修改，请先保留草稿，再刷新线上文章。',409,'CONFLICT');return existing;}
 function imageType(bytes){
@@ -99,6 +101,18 @@ async function handle(request,env,ctx){
   if(request.method==='HEAD')return new Response(null,{headers});
   const {results}=await query(db,'SELECT data FROM image_chunks WHERE key=? ORDER BY part',key).all(),bytes=new Uint8Array(image.size);let offset=0;
   for(const row of results){const chunk=new Uint8Array(row.data);bytes.set(chunk,offset);offset+=chunk.length;}if(offset!==image.size)fail('图片暂时无法读取。',503);
+  return new Response(bytes,{headers});
+ }
+ if(path.startsWith('/assets/attachments/')&&['GET','HEAD'].includes(request.method)){
+  const key=decodeURIComponent(path.slice(1));if(!rules.validPath(key))return new Response('Not found',{status:404});
+  const file=await query(db,'SELECT name,size,etag FROM attachments WHERE key=?',key).first();if(!file)return new Response('Not found',{status:404});
+  const published=await query(db,"SELECT 1 FROM posts,json_each(posts.value,'$.attachments') AS a WHERE json_extract(a.value,'$.path')=? LIMIT 1",key).first();
+  if(!published){try{await session(request,db);}catch{return new Response('Not found',{status:404});}}
+  const headers={'Content-Type':'application/octet-stream','Content-Disposition':"attachment; filename=download."+key.split('.').pop()+"; filename*=UTF-8''"+encodeURIComponent(file.name).replace(/[!'()*]/g,c=>'%'+c.charCodeAt(0).toString(16)),'Content-Length':String(file.size),'Cache-Control':published?'public,max-age=0,must-revalidate':'private,no-store','X-Content-Type-Options':'nosniff','ETag':'"'+file.etag+'"'};
+  if(request.headers.get('If-None-Match')===headers.ETag)return new Response(null,{status:304,headers});
+  if(request.method==='HEAD')return new Response(null,{headers});
+  const {results}=await query(db,'SELECT data FROM attachment_chunks WHERE key=? ORDER BY part',key).all(),bytes=new Uint8Array(file.size);let offset=0;
+  for(const row of results){const chunk=new Uint8Array(row.data);bytes.set(chunk,offset);offset+=chunk.length;}if(offset!==file.size)fail('附件暂时无法读取。',503);
   return new Response(bytes,{headers});
  }
  if(!path.startsWith('/api/'))return env.ASSETS.fetch(request);
@@ -124,7 +138,7 @@ async function handle(request,env,ctx){
  }
  if(path==='/api/writer'&&request.method==='GET'){await session(request,db);return json((await document(db)).value);}
  if(path==='/api/posts'&&request.method==='POST'){
-  await session(request,db,true);const data=await body(request),snapshot=await document(db),published=post(data.post,data.basePost);samePost(snapshot,published.id,data.basePost);
+  await session(request,db,true);const data=await body(request),snapshot=await document(db),published=post(data.post,data.basePost);samePost(snapshot,published.id,data.basePost);await checkAttachments(db,[published],{query,fail});
   const posts=[published,...snapshot.value.posts.filter(p=>p.id!==published.id)],revision=await save(db,snapshot,{...snapshot.value,posts});return json({post:published,posts,revision});
  }
  if(path==='/api/posts/delete'&&request.method==='POST'){
@@ -140,15 +154,23 @@ async function handle(request,env,ctx){
   if(stable(profile(snapshot.value.profile||{school:'东北林业大学',major:'人工智能',qq:'3468692947',bio:''}))!==stable(profile(data.baseProfile)))fail('个人简介已在别处修改，请先保留文字再载入线上资料。',409,'CONFLICT');
   const revision=await save(db,snapshot,{...snapshot.value,profile:value,profileUpdatedAt:new Date().toISOString()});return json({profile:value,revision});
  }
+ if(path==='/api/attachments'&&request.method==='POST'){
+  await session(request,db,true);await limit(db,request,'attachment',20,60000);
+  const id=request.headers.get('X-Post-Id');if(!/^[a-z0-9][a-z0-9_-]{0,95}$/.test(id||''))fail('附件所属文章无效。');
+  let name;try{name=decodeURIComponent(request.headers.get('X-File-Name')||'');}catch{fail('附件名称无效。');}
+  const ext=name.split('.').pop().toLowerCase();if(!rules.extensions.includes(ext)||rules.name(name)!==name||!name)fail('不支持此附件格式或名称。',415);
+  const bytes=await boundedBytes(request,rules.limit),key=`assets/attachments/${id}/${crypto.randomUUID()}.${ext}`;
+  return json(await storeAttachment(db,key,name,bytes,{query,fail}),201);
+ }
  if(path==='/api/images'&&request.method==='POST'){
   await session(request,db,true);await limit(db,request,'image',60,60000);const id=request.headers.get('X-Post-Id');if(!/^[a-z0-9][a-z0-9_-]{0,95}$/.test(id||''))fail('图片所属文章无效。');
   const bytes=await boundedBytes(request,2*1024*1024),[ext,mime]=imageType(bytes),key=`assets/uploads/${id}/${crypto.randomUUID()}.${ext}`,etag=hex(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)));
   // Each BLOB stays below D1's row limit; the metadata insert reserves quota atomically.
-  const commands=[query(db,'INSERT INTO images(key,mime,size,etag,created) SELECT ?,?,?,?,? WHERE (SELECT COALESCE(SUM(size),0) FROM images)+?<=?',key,mime,bytes.length,etag,Date.now(),bytes.length,200*1024*1024)];
+  const commands=[query(db,'INSERT INTO images(key,mime,size,etag,created) SELECT ?,?,?,?,? WHERE (SELECT COALESCE(SUM(size),0) FROM images)+(SELECT COALESCE(SUM(size),0) FROM attachments)+?<=?',key,mime,bytes.length,etag,Date.now(),bytes.length,200*1024*1024)];
   for(let offset=0,part=0;offset<bytes.length;offset+=256*1024,part++)commands.push(query(db,'INSERT INTO image_chunks(key,part,data) SELECT ?,?,? WHERE EXISTS(SELECT 1 FROM images WHERE key=?)',key,part,bytes.slice(offset,offset+256*1024).buffer,key));
   const results=await db.batch(commands);if(results[0].meta.changes!==1)fail('当前图片空间已用满，请先导出备份，再联系站点维护者扩容。',413,'STORAGE');return json({path:key,size:bytes.length},201);
  }
- if(path==='/api/storage'&&request.method==='GET'){await session(request,db);const row=await query(db,'SELECT COALESCE(SUM(size),0) AS used,COUNT(*) AS images FROM images').first();return json({...row,limit:200*1024*1024,singleImageLimit:2*1024*1024});}
+ if(path==='/api/storage'&&request.method==='GET'){await session(request,db);const row=await query(db,'SELECT (SELECT COALESCE(SUM(size),0) FROM images)+(SELECT COALESCE(SUM(size),0) FROM attachments) AS used,(SELECT COUNT(*) FROM images) AS images,(SELECT COUNT(*) FROM attachments) AS attachments').first();return json({...row,limit:200*1024*1024,singleImageLimit:2*1024*1024,singleAttachmentLimit:rules.limit});}
  if(path==='/api/comments'&&request.method==='GET'){
   const before=Number(url.searchParams.get('before')||Number.MAX_SAFE_INTEGER);if(!Number.isSafeInteger(before)||before<1)fail('留言分页参数无效。');
   const {results}=await query(db,'SELECT id,name,body,created_at FROM comments WHERE id<? ORDER BY id DESC LIMIT 21',before).all(),items=results.slice(0,20);return json({comments:items,next:results.length>20?items.at(-1).id:null});

@@ -73,7 +73,7 @@
     if(staged){if(!previewURLs.has(staged.path))previewURLs.set(staged.path,URL.createObjectURL(staged.blob));return previewURLs.get(staged.path);}
     return undefined;
   }
-  function updateCounts(){const text=$('markdown').value;$('word-count').textContent=`${text.replace(/\s/g,'').length.toLocaleString('zh-CN')} 字`;$('image-count').textContent=current?.images.length ? `${current.images.length} 张待发布图片` : '支持拖入、粘贴图片';renderCover();}
+  function updateCounts(){const text=$('markdown').value;$('word-count').textContent=`${text.replace(/\s/g,'').length.toLocaleString('zh-CN')} 字`;$('image-count').textContent=current?.images.length ? `${current.images.length} 张待发布图片` : '支持拖入、粘贴图片';renderCover();renderAttachments();}
   function renderPreview() {
     const markdown=$('markdown').value, preview=$('preview');
     preview.classList.toggle('empty-preview',!markdown.trim());
@@ -83,7 +83,7 @@
   }
   function setPreview(enabled) {$('preview-button').setAttribute('aria-pressed',String(enabled));$('preview-button').textContent=enabled?'继续编辑':'预览';$('markdown').hidden=enabled;$('preview').hidden=!enabled;if(enabled)renderPreview();else $('markdown').focus();}
   function setEditor(draft) {
-    cleanupURLs();current=draft;dirty=false;editVersion++;clearTimeout(saveTimer);
+    cleanupURLs();current=draft;current.files??=[];dirty=false;editVersion++;clearTimeout(saveTimer);
     const post=draft.post;
     for(const key of fields)$(`${key}`).value=key==='tags'?(post.tags||[]).join('，'):post[key]||'';
     $('editor-heading').textContent=draft.basePost?'编辑已发布文章':'新的记录';
@@ -92,7 +92,7 @@
     saveState('本机草稿');setPreview(false);updateCounts();renderLibrary();
   }
   async function canSwitch(){if(busy||imageBusy){toast('请等待当前操作完成');return false;}if(dirty && !await saveDraft({quiet:true})){toast('草稿尚未保存。请先导出备份，再重试。');return false;}return true;}
-  function freshDraft(){const id=`post-${localDate().replaceAll('-','')}-${uuid().replaceAll('-','').slice(0,12)}`;return {draftId:uuid(),post:{id,title:'',category:'notes',date:localDate(),tags:[],excerpt:'',markdown:'',demo:false},basePost:null,images:[],updatedAt:new Date().toISOString()};}
+  function freshDraft(){const id=`post-${localDate().replaceAll('-','')}-${uuid().replaceAll('-','').slice(0,12)}`;return {draftId:uuid(),post:{id,title:'',category:'notes',date:localDate(),tags:[],excerpt:'',markdown:'',demo:false},basePost:null,images:[],files:[],updatedAt:new Date().toISOString()};}
   async function newArticle(){if(!await canSwitch())return;setEditor(freshDraft());status('');$('title').focus();}
   async function openDraft(id){if(current?.draftId===id)return;if(!await canSwitch())return;const item=await store('readonly',s=>s.get(id));if(item){setEditor(item);status('');}}
   async function openPublished(id) {
@@ -142,9 +142,9 @@
     const editingDraftId=current.draftId;
     try {
       await saveDraft({quiet:true});
-      const result=await client.publish(post,current.images,current.basePost,progress=>status(typeof progress==='string'?progress:progress?.message||'正在发布文章与图片…'));
+      const result=await client.publish(post,current.images,current.basePost,progress=>status(typeof progress==='string'?progress:progress?.message||'正在发布…'),current.files);
       const published=result.post||post;
-      current={...current,post:{...published,markdown:window.BlogArticle.toMarkdown(published)},basePost:clone(published),images:[],updatedAt:new Date().toISOString()};
+      current={...current,post:{...published,markdown:window.BlogArticle.toMarkdown(published)},basePost:clone(published),images:[],files:[],updatedAt:new Date().toISOString()};
       delete current.post.body;dirty=true;editVersion++;cleanupURLs();
       $('markdown').value=current.post.markdown;$('cover').value=current.post.cover||'';renderCover();
       $('excerpt').value=current.post.excerpt||'';
@@ -234,6 +234,31 @@
       imageBusy=false;$('image-button').disabled=false;$('image-input').value='';updateCounts();
     }
   }
+  function renderAttachments(){
+    const list=$('attachment-list');if(!list)return;
+    list.innerHTML=(current?.post.attachments||[]).map((item,index)=>`<li><span><strong>${escapeHTML(item.name)}</strong><small>${window.BlogAttachments.size(item.size)}${current.files?.some(f=>f.path===item.path)?' · 待发布':''}</small></span><button type="button" class="quiet" data-remove-attachment="${index}" aria-label="移除 ${escapeHTML(item.name)}" ${busy?'disabled':''}>移除</button></li>`).join('');
+  }
+  async function addAttachments(files){
+    if(busy||imageBusy||!files.length)return;imageBusy=true;$('attachment-button').disabled=true;
+    try{
+      current.files??=[];current.post.attachments??=[];
+      for(const file of files){
+        const name=window.BlogAttachments.name(file.name),ext=name.split('.').pop().toLowerCase();
+        if(!name||!window.BlogAttachments.extensions.includes(ext))throw new Error('暂不支持这个文件格式，请选择文档、压缩包、文本或代码。');
+        if(!file.size||file.size>window.BlogAttachments.limit)throw new Error('单个附件请控制在 10MB 以内。');
+        if(current.post.attachments.length>=10)throw new Error('每篇文章最多添加 10 个附件。');
+        if(current.files.reduce((n,f)=>n+f.blob.size,0)+file.size>30*1024*1024)throw new Error('待发布附件总量最多 30MB，请分篇上传。');
+        const path=`assets/attachments/${current.post.id}/${uuid()}.${ext}`;
+        current.files.push({path,blob:file});current.post.attachments.push({path,name,size:file.size});changed();
+      }
+      status('附件已加入本机草稿，发布文章后可供读者下载。');
+    }catch(error){status(errorMessage(error),true);}
+    finally{await saveDraft({quiet:true});imageBusy=false;$('attachment-button').disabled=false;$('attachment-input').value='';renderAttachments();}
+  }
+  $('attachment-button').addEventListener('click',()=>$('attachment-input').click());
+  $('attachment-input').accept=window.BlogAttachments.extensions.map(ext=>'.'+ext).join(',');
+  $('attachment-input').addEventListener('change',()=>void addAttachments([...$('attachment-input').files]));
+  $('attachment-list').addEventListener('click',event=>{const button=event.target.closest('[data-remove-attachment]');if(!button||busy||imageBusy)return;const [removed]=current.post.attachments.splice(Number(button.dataset.removeAttachment),1);current.files=current.files.filter(f=>f.path!==removed.path);changed();});
   async function disconnect(){
     if(busy||imageBusy)return;await saveDraft({quiet:true});
     try{await client.logout();dirty=false;location.reload();}catch(error){toast(errorMessage(error));}
@@ -245,13 +270,14 @@
     if(!current)return;
     const saved=snapshot(),title=(saved.post.title||'未命名记录').replace(/[\\/:*?"<>|]/g,'-').slice(0,70);
     const images=[];for(const image of saved.images){const dataURL=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(new Error('图片备份失败。'));reader.readAsDataURL(image.blob);});images.push({path:image.path,dataURL});}
-    download(new Blob([JSON.stringify({format:'incloing-draft-v1',post:saved.post,basePost:saved.basePost,images,exportedAt:new Date().toISOString()},null,2)],{type:'application/json'}),`${title}.incloing.json`);
-    download(new Blob([`# ${saved.post.title}\n\n${saved.post.markdown}`],{type:'text/markdown;charset=utf-8'}),`${title}.md`);toast('已导出 Markdown 与含图片的 JSON 备份');
+    const files=[];for(const file of saved.files||[]){const dataURL=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(new Error('附件备份失败。'));reader.readAsDataURL(new Blob([file.blob],{type:'application/octet-stream'}));});files.push({path:file.path,dataURL});}
+    download(new Blob([JSON.stringify({format:'incloing-draft-v1',post:saved.post,basePost:saved.basePost,images,files,exportedAt:new Date().toISOString()},null,2)],{type:'application/json'}),`${title}.incloing.json`);
+    download(new Blob([`# ${saved.post.title}\n\n${saved.post.markdown}`],{type:'text/markdown;charset=utf-8'}),`${title}.md`);toast('已导出 Markdown 与含图片和附件的 JSON 备份');
   }
   async function importDraft(file){
     if(!file||!await canSwitch())return;
     try{
-      if(file.size>45*1024*1024)throw new Error('备份文件过大，最大支持 45 MB。');
+      if(file.size>90*1024*1024)throw new Error('备份文件过大，最大支持 90 MB。');
       const backup=JSON.parse(await file.text());
       if(backup?.format!=='incloing-draft-v1'||!backup.post||!Array.isArray(backup.images)||backup.images.length>30)throw new Error('请选择从写作空间导出的 .incloing.json 备份。');
       const post=window.BlogArticle.validateManifest({version:1,revision:'local-backup',posts:[backup.post]}).posts[0];
@@ -272,7 +298,15 @@
         if(type!==matched[1]||!(type===extension||(type==='jpeg'&&extension==='jpg'))||(type==='gif'&&blob.size>5*1024*1024))throw new Error('备份中的图片内容与格式不一致，或 GIF 大于 5 MB。');
         images.push({path:image.path,blob});paths.add(image.path);
       }
-      const imported={draftId:uuid(),post,basePost,images,updatedAt:new Date().toISOString()};
+      const files=[];let fileTotal=0;
+      if(backup.files!==undefined&&(!Array.isArray(backup.files)||backup.files.length>10))throw new Error('备份的附件列表无效。');
+      for(const item of backup.files||[]){
+        const metadata=post.attachments?.find(a=>a.path===item.path),matched=typeof item.dataURL==='string'&&/^data:application\/octet-stream;base64,([A-Za-z0-9+/=]+)$/.exec(item.dataURL);
+        if(!metadata||!item.path.startsWith(`assets/attachments/${post.id}/`)||files.some(f=>f.path===item.path)||!matched)throw new Error('附件备份格式无效。');
+        const bytes=Uint8Array.from(atob(matched[1]),c=>c.charCodeAt(0));fileTotal+=bytes.length;
+        if(bytes.length!==metadata.size||fileTotal>30*1024*1024)throw new Error('附件备份大小无效。');files.push({path:item.path,blob:new Blob([bytes],{type:'application/octet-stream'})});
+      }
+      const imported={draftId:uuid(),post,basePost,images,files,updatedAt:new Date().toISOString()};
       await store('readwrite',s=>s.put(imported));setEditor(imported);libraryMode='drafts';await refreshDrafts();status('备份已恢复为本机草稿，点击发布才会更新网站。');toast('文章与图片备份已恢复');
     }catch(error){toast(error instanceof SyntaxError?'备份文件不是有效的 JSON。':errorMessage(error));}
     finally{$('import-input').value='';}
@@ -303,7 +337,7 @@
   drop.addEventListener('dragenter',event=>{if(event.dataTransfer.types.includes('Files')){event.preventDefault();dragDepth++;drop.classList.add('dragover');}});
   drop.addEventListener('dragover',event=>{if(event.dataTransfer.types.includes('Files'))event.preventDefault();});
   drop.addEventListener('dragleave',()=>{if(--dragDepth<=0){dragDepth=0;drop.classList.remove('dragover');}});
-  drop.addEventListener('drop',event=>{event.preventDefault();dragDepth=0;drop.classList.remove('dragover');void addImages([...event.dataTransfer.files]);});
+  drop.addEventListener('drop',async event=>{event.preventDefault();dragDepth=0;drop.classList.remove('dragover');const files=[...event.dataTransfer.files],images=files.filter(f=>/^image\//.test(f.type));await addImages(images);await addAttachments(files.filter(f=>!images.includes(f)));});
   $('connect-button').addEventListener('click',()=>{$('connect-dialog').showModal();});
   $('disconnect-button').addEventListener('click',()=>void disconnect());
   document.querySelectorAll('[data-close]').forEach(button=>button.addEventListener('click',()=>$(button.dataset.close).close()));

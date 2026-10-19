@@ -92,6 +92,7 @@
    if(string(post.status,160))normalized.status=post.status;
    if(string(post.updatedAt,40)&&!Number.isNaN(Date.parse(post.updatedAt)))normalized.updatedAt=post.updatedAt;
    if(post.cover!==undefined){if(!string(post.cover,220)||(post.cover&&!uploadPath(post.cover)))throw new Error('文章封面路径无效。');normalized.cover=post.cover;}
+   if(post.attachments!==undefined){const files=window.BlogAttachments.normalize(post.attachments);if(files.length)normalized.attachments=files;}
    return normalized;
   });
   return {version:1,revision:manifest.revision,posts};

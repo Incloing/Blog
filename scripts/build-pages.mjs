@@ -6,5 +6,5 @@ const root=path.resolve(import.meta.dirname,'..'),output=path.join(root,'pages-d
 fs.mkdirSync(output,{recursive:true});
 fs.cpSync(path.join(root,'public'),output,{recursive:true});
 await build({stdin:{contents:"import worker from './src/worker.mjs'; export default worker;",resolveDir:root},outfile:path.join(output,'_worker.js'),bundle:true,format:'esm',platform:'browser',target:'es2022',minify:false});
-fs.writeFileSync(path.join(output,'_routes.json'),JSON.stringify({version:1,include:['/api/*','/content/posts.json','/assets/uploads/*'],exclude:[]},null,2)+'\n');
+fs.writeFileSync(path.join(output,'_routes.json'),JSON.stringify({version:1,include:['/api/*','/content/posts.json','/assets/uploads/*','/assets/attachments/*'],exclude:[]},null,2)+'\n');
 console.log('Pages package ready; dynamic routes use the existing DB binding.');

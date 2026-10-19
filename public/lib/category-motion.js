@@ -6,7 +6,7 @@
  let serial=0,active=null,oldBackdrop=null;
  const category=hash=>categories.has(String(hash).replace(/^#\/?/,'').split('/')[0]);
  function clearEffects(){for(const effect of effects)effect.cancel();effects.clear();oldBackdrop?.remove();oldBackdrop=null;}
- function stop(){serial++;active?.view?.skipTransition();active=null;root.classList.remove('category-changing');clearEffects();}
+ function stop(){serial++;active?.view?.skipTransition();active=null;root.classList.remove('category-changing','route-back');clearEffects();}
  function animate(element,frames,options){
   if(!element)return null;const effect=element.animate(frames,options);effects.add(effect);
   effect.finished.then(()=>effects.delete(effect),()=>effects.delete(effect));return effect;
@@ -15,7 +15,7 @@
   if(active?.kind==='native')return;
   // Keep a fading old background, but discard animations on replaced content.
   for(const effect of effects)if(effect.effect?.target!==oldBackdrop){effect.cancel();effects.delete(effect);}
-  const stage=main.querySelector('.collection-stage');if(!stage||reduced.matches)return;
+  const stage=main.querySelector('.collection-stage');if(reduced.matches)return;if(!stage){if(active?.kind==='fallback')animate(main,[{opacity:0,translate:active.back?'-20px 0':'0 18px'},{opacity:1,translate:'0 0'}],{duration:520,easing:'cubic-bezier(.22,1,.36,1)'});return;}
   const options={duration:620,easing:'cubic-bezier(.22,1,.36,1)'},scenes=[...stage.querySelectorAll('.story-scene')],scene=scenes.find(el=>{const r=el.getBoundingClientRect();return r.top<=innerHeight*.6&&r.bottom>=innerHeight*.4;})||scenes[0];
   animate(stage.querySelector('.collection-tools'),[{opacity:0,translate:'0 -10px'},{opacity:1,translate:'0 0'}],{...options,duration:450});
   animate(scene?.querySelector('.story-card,.story-empty'),[{opacity:0,transform:'translateY(28px) scale(.975)',filter:'blur(5px)'},{opacity:1,transform:'translateY(0) scale(1)',filter:'blur(0)'}],options);
@@ -40,11 +40,11 @@
   if(layer){const fade=animate(layer,[{opacity:1},{opacity:0}],{duration:580,easing:'ease-out',fill:'forwards'});fade.finished.then(()=>{layer.remove();if(oldBackdrop===layer)oldBackdrop=null;},()=>{});}
   if(active===state)active=null;
  }
- function go(hash,update){
+ function go(hash,update,{back=false}={}){
   if(active?.hash===hash)return;
   stop();
-  if(!category(hash)||reduced.matches){update();return;}
-  const state={id:serial,hash,kind:'fallback',view:null,applied:false};active=state;
+  if(reduced.matches){update();return;}
+  const state={id:serial,hash,kind:'fallback',view:null,applied:false,back};active=state;root.classList.toggle('route-back',back);
   if(typeof document.startViewTransition==='function'){
    state.kind='native';root.classList.add('category-changing');
    try{
@@ -54,9 +54,9 @@
      if(image&&!image.complete)await Promise.race([image.decode().catch(()=>{}),new Promise(resolve=>setTimeout(resolve,140))]);
     });
     state.view.ready.catch(()=>{if(active===state&&state.applied){state.kind='fallback';enter();}});
-    state.view.finished.then(()=>{if(active===state){active=null;root.classList.remove('category-changing');}},()=>{if(active===state){active=null;root.classList.remove('category-changing');}});
+    state.view.finished.then(()=>{if(active===state){active=null;root.classList.remove('category-changing','route-back');}},()=>{if(active===state){active=null;root.classList.remove('category-changing','route-back');}});
     return;
-   }catch{root.classList.remove('category-changing');state.kind='fallback';}
+   }catch{root.classList.remove('category-changing','route-back');state.kind='fallback';}
   }
   fallback(state,update);
  }

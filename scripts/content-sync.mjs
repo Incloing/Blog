@@ -7,7 +7,7 @@ const root=path.resolve(import.meta.dirname,'..');
 export const stable=value=>JSON.stringify(value,(_,v)=>v&&typeof v==='object'&&!Array.isArray(v)?Object.fromEntries(Object.entries(v).sort(([a],[b])=>a.localeCompare(b))):v);
 export const bodyText=p=>typeof p.markdown==='string'?p.markdown:(p.body||[]).map(s=>`${s.heading?'## '+s.heading+'\n\n':''}${s.text||''}`).join('\n\n');
 const articleFile=p=>`# ${p.title.replace(/[\r\n]/g,' ')}\n\n${bodyText(p)}\n`;
-const comparable=p=>p?{id:p.id,title:p.title,category:p.category,date:p.date,tags:p.tags||[],excerpt:p.excerpt||'',cover:p.cover||'',markdown:bodyText(p),demo:p.demo===true,pinned:p.pinned===true}:null;
+const comparable=p=>p?{id:p.id,title:p.title,category:p.category,date:p.date,tags:p.tags||[],excerpt:p.excerpt||'',cover:p.cover||'',markdown:bodyText(p),demo:p.demo===true,pinned:p.pinned===true,attachments:p.attachments||[]}:null;
 const equal=(a,b)=>stable(a)===stable(b);
 function choose(base,local,remote,label,normalize=v=>v){if(equal(normalize(local),normalize(base)))return remote;if(equal(normalize(remote),normalize(base))||equal(normalize(local),normalize(remote)))return local;throw new Error(`同步冲突：${label} 在网页和 GitHub 都有不同修改。两边均已保留，请手动对照后重跑。`);}
 export function merge(base,local,remote){
@@ -40,6 +40,7 @@ export function readArticles(manifest,base,directory=root){
 }
 const refs=manifest=>{const values=new Set();for(const p of manifest.posts){if(p.cover)values.add(p.cover);for(const match of bodyText(p).matchAll(/assets\/uploads\/[a-z0-9_-]+\/[a-zA-Z0-9_-]+\.(?:webp|png|jpe?g|gif)/g))values.add(match[0]);}if(manifest.profile?.rewardQr)values.add(manifest.profile.rewardQr);return values;};
 const hash=bytes=>createHash('sha256').update(bytes).digest('hex');
+const attachmentKey=key=>/^assets\/attachments\/[a-z0-9][a-z0-9_-]{0,95}\/[a-zA-Z0-9_-]{8,96}\.(?:pdf|docx?|xlsx?|pptx?|odt|ods|odp|zip|7z|rar|tar|gz|txt|md|csv|json|yaml|yml|xml|log|py|c|cpp|h|hpp|java|js|ts|tsx|jsx|ipynb|r|rs|go|sql|css)$/.test(key);
 const imageKey=key=>/^assets\/uploads\/[a-z0-9_-]+\/[a-zA-Z0-9_-]+\.(?:webp|png|jpe?g|gif)$/.test(key);
 function writeJSON(name,value){const dest=path.join(root,name),text=JSON.stringify(value,null,2)+'\n';fs.mkdirSync(path.dirname(dest),{recursive:true});if(!fs.existsSync(dest)||fs.readFileSync(dest,'utf8')!==text)fs.writeFileSync(dest,text);}
 export async function run(){
@@ -54,9 +55,22 @@ export async function run(){
   if(fs.existsSync(file)){const bytes=fs.readFileSync(file);if(hash(bytes)!==remoteImages.get(key)?.etag)await api('images',bytes,{'X-Image-Key':key});}
   else if(!remoteImages.has(key)){const check=await fetch(origin+'/'+key,{method:'HEAD',signal:AbortSignal.timeout(20000)});if(!check.ok)throw new Error('文章引用的图片未上传：'+key);}
  }
+ const remoteAttachments=new Map((snapshot.attachments||[]).map(i=>[i.key,i]));
+ for(const item of merged.posts.flatMap(p=>p.attachments||[])){
+  if(!attachmentKey(item.path)||!Number.isSafeInteger(item.size)||item.size<1||item.size>10*1024*1024)throw new Error('附件元数据无效');
+  const file=path.join(root,'public',item.path);
+  if(fs.existsSync(file)){const bytes=fs.readFileSync(file);if(bytes.length!==item.size)throw new Error('附件大小与清单不一致：'+item.name);if(hash(bytes)!==remoteAttachments.get(item.path)?.etag)await api('attachments',bytes,{'X-Attachment-Key':item.path,'X-File-Name':encodeURIComponent(item.name)});}
+  else if(!remoteAttachments.has(item.path))throw new Error('附件尚未上传：'+item.name);
+ }
  if(!equal(merged.posts.map(comparable),snapshot.manifest.posts.map(comparable))||!equal(merged.profile,snapshot.manifest.profile)){await api('import',{baseRevision:snapshot.manifest.revision,posts:merged.posts,profile:merged.profile});snapshot=await api('export');}
  const live=snapshot.manifest;
  for(const item of snapshot.images){if(!imageKey(item.key)||!Number.isSafeInteger(item.size)||item.size>2*1024*1024)throw new Error('服务器图片元数据无效');const dest=path.join(root,'public',item.key);if(fs.existsSync(dest)&&hash(fs.readFileSync(dest))===item.etag)continue;const response=await fetch(origin+'/'+item.key,{signal:AbortSignal.timeout(30000)});if(!response.ok)throw new Error('下载图片失败：'+item.key);const bytes=new Uint8Array(await response.arrayBuffer());if(bytes.length!==item.size||hash(bytes)!==item.etag)throw new Error('图片校验失败：'+item.key);fs.mkdirSync(path.dirname(dest),{recursive:true});fs.writeFileSync(dest,bytes);}
+ for(const item of snapshot.attachments||[]){
+  if(!attachmentKey(item.key)||!Number.isSafeInteger(item.size)||item.size<1||item.size>10*1024*1024)throw new Error('服务器附件元数据无效');
+  const dest=path.join(root,'public',item.key);if(fs.existsSync(dest)&&hash(fs.readFileSync(dest))===item.etag)continue;
+  const response=await fetch(origin+'/'+item.key,{signal:AbortSignal.timeout(60000)});if(!response.ok)throw new Error('下载附件失败：'+item.key);
+  const bytes=new Uint8Array(await response.arrayBuffer());if(bytes.length!==item.size||hash(bytes)!==item.etag)throw new Error('附件校验失败：'+item.key);fs.mkdirSync(path.dirname(dest),{recursive:true});fs.writeFileSync(dest,bytes);
+ }
  writeJSON('content/posts.json',live);writeJSON('content/.sync-base.json',live);writeJSON('content/comments.json',{version:1,comments:snapshot.comments});writeJSON('content/metrics.json',{version:1,...snapshot.metrics});
  const expected=new Set();for(const p of live.posts){if(!validId(p.id)||!['notes','projects','life'].includes(p.category))throw new Error('服务器文章标识无效');const relative=`content/${p.category}/${p.id}.md`;expected.add(relative);const dest=path.join(root,relative);fs.mkdirSync(path.dirname(dest),{recursive:true});fs.writeFileSync(dest,articleFile(p));}
  for(const category of ['notes','projects','life']){const folder=path.join(root,'content',category);fs.mkdirSync(folder,{recursive:true});for(const file of fs.readdirSync(folder))if(file.endsWith('.md')&&validId(file.slice(0,-3))&&!expected.has(`content/${category}/${file}`))fs.unlinkSync(path.join(folder,file));}

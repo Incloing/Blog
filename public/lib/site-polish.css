@@ -1,0 +1,20 @@
+.ambient-leaves{position:fixed;inset:0;width:100%;height:100%;z-index:4;pointer-events:none;contain:strict}
+.section-nav{max-width:min(100%,calc(100vw - 36px));overflow-x:auto;scrollbar-width:none;overscroll-behavior-x:contain}
+.section-nav::-webkit-scrollbar{display:none}
+.section-nav a{flex-shrink:0}
+.article-attachments{margin:45px 0 20px}
+.article-attachments h2{font-size:19px;margin-bottom:16px}
+.attachment-download{display:flex;align-items:center;gap:14px;padding:15px 18px;margin-top:10px;border-radius:18px;overflow-wrap:anywhere;line-height:1.6}
+.attachment-download>span:nth-child(2){flex:1;min-width:0}
+.attachment-download small{display:block;font-size:12px;color:var(--muted);margin-top:3px}
+.attachment-editor{padding:20px;margin:20px 0;border:1px solid var(--line);border-radius:18px}
+.attachment-editor p{font-size:12px;color:var(--muted);margin:5px 0 12px}
+#attachment-list{padding:0;list-style:none;margin:14px 0 0}
+#attachment-list:empty{display:none}
+#attachment-list li{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line)}
+#attachment-list li>span{flex:1;min-width:0;overflow-wrap:anywhere}
+#attachment-list strong{font-weight:500;font-size:13px}
+#attachment-list small{display:block;color:var(--muted);font-size:11px}
+.swipe-dialog{touch-action:pan-y pinch-zoom}
+.swipe-dialog.menu-dragging,.swipe-dialog.menu-settling{animation:none!important;transition:none!important}
+@media(max-width:700px){.section-nav{justify-self:stretch;width:auto}.section-nav a{padding-inline:12px}.attachment-editor{padding:16px}}

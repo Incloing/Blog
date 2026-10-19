@@ -9,7 +9,8 @@
     "run_worker_first": [
       "/api/*",
       "/content/posts.json",
-      "/assets/uploads/*"
+      "/assets/uploads/*",
+      "/assets/attachments/*"
     ]
   },
   "d1_databases": [

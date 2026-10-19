@@ -1,5 +1,5 @@
 @font-face{font-family:Outfit;src:url('./assets/fonts/outfit.woff2') format('woff2');font-weight:300 700;font-display:swap}
-@font-face{font-family:NotoUI;src:url('./assets/fonts/noto-ui.woff2?v=cf-20261017-r1') format('woff2');font-weight:400 700;font-display:swap}
+
 @font-face{font-family:'Material Symbols Rounded';src:url('./assets/fonts/material-symbols.woff2?v=cf-20261017-r1') format('woff2');font-weight:400;font-display:block}
 .qq-icon{filter:grayscale(1);opacity:.62}
 :root{color-scheme:light;--ink:#29372f;--muted:#64736a;--line:rgba(52,72,57,.13);--paper:#f8f9f5;--green:#547d60;--ease:cubic-bezier(.22,1,.36,1)}

@@ -40,7 +40,7 @@ jobs:
         run: |
           git config user.name 'Incloing Blog Sync'
           git config user.email '259068355+Incloing@users.noreply.github.com'
-          git add content public/assets/uploads
+          git add content public/assets/uploads public/assets/attachments
           if ! git diff --cached --quiet; then
             git commit -m 'Sync public blog data'
             git push origin HEAD:main

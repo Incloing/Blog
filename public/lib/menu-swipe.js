@@ -1,7 +1,7 @@
 /* Drag the open drawer left to dismiss; vertical scrolling stays native. */
 (() => {
  'use strict';
- const drawer=document.getElementById('menu-dialog');if(!drawer)return;
+ for(const drawer of document.querySelectorAll('dialog')){drawer.classList.add('swipe-dialog');
  const reduced=matchMedia('(prefers-reduced-motion: reduce)');
  let gesture=null,animation=null,suppressClickUntil=0;
  const position=x=>`translate3d(${x}px,0,0)`;
@@ -24,7 +24,7 @@
  drawer.addEventListener('pointerdown',event=>{
   if(!drawer.open||animation)return;
   if(event.isPrimary)suppressClickUntil=0;
-  if(event.pointerType==='mouse')return;
+  if(event.pointerType==='mouse'||event.target.closest('input,textarea,select,[contenteditable]'))return;
   if(!event.isPrimary){if(gesture?.mode==='dragging')settle(gesture,false);else gesture=null;return;}
   gesture={id:event.pointerId,x:event.clientX,y:event.clientY,width:drawer.getBoundingClientRect().width,offset:0,mode:'pending'};
  },{passive:true});
@@ -55,4 +55,5 @@
   if(performance.now()<suppressClickUntil&&event.detail!==0){event.preventDefault();event.stopImmediatePropagation();}
  },true);
  drawer.addEventListener('close',clear);
+ }
 })();

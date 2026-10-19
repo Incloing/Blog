@@ -2,7 +2,7 @@
  'use strict';
  window.BlogManagement={init({getClient,getCurrent,confirm,busy,setBusy,onRemoved,save,status,toast}){
   const $=id=>document.getElementById(id);let next=null,commentsBusy=false;
-  async function storage(){try{const result=await getClient().request('storage');$('storage-state').textContent=`图片空间 ${(result.used/1024/1024).toFixed(1)} / ${result.limit/1024/1024} MB · 单图最多 2MB`;}catch{$('storage-state').textContent='暂时无法读取图片空间';}}
+  async function storage(){try{const result=await getClient().request('storage');$('storage-state').textContent=`文件空间 ${(result.used/1024/1024).toFixed(1)} / ${result.limit/1024/1024} MB · 图片 2MB · 附件 10MB`;}catch{$('storage-state').textContent='暂时无法读取文件空间';}}
   void storage();window.addEventListener('incloing:uploaded',()=>void storage());
   const sync=document.createElement('p');sync.className='storage-state';sync.id='github-sync-state';$('storage-state').after(sync);
   getClient().request('sync/status').then(value=>{const text=document.createElement('span');text.textContent=value.last?'GitHub 快照更新于 '+new Date(value.last.at).toLocaleString('zh-CN',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}):value.configured?'GitHub 定时同步已配置':'GitHub 同步准备中';const link=document.createElement('a');link.href='https://github.com/Incloing/Blog/actions/workflows/blog.yml';link.target='_blank';link.rel='noopener noreferrer';link.textContent=' 查看同步 / 手动运行 ↗';sync.append(text,document.createElement('br'),link);}).catch(()=>{sync.textContent='暂时无法读取 GitHub 同步状态。';});

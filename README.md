@@ -66,3 +66,13 @@ Pages 入口使用 `npm run deploy:pages` 单独发布；`scripts/build-pages.mj
 当前 Pages 项目采用 Direct Upload，通过 `.github/workflows/blog.yml` 连接 GitHub Actions，无需更换网址。公开内容同步已使用独立授权；自动部署 Cloudflare 源码需要另加仓库 Secret `CLOUDFLARE_API_TOKEN`，权限仅限当前 Cloudflare 账号的 Cloudflare Pages Edit、Workers Scripts Edit 和 D1 Edit。令牌只填入 GitHub 仓库 Settings → Secrets and variables → Actions，不写入文件或聊天。
 
 设置后，在 Actions 手动运行并勾选 Also deploy source changes to Cloudflare，完成首次验证。以后修改 `public/`、`src/` 等源码会自动构建并部署 Workers 和 Pages；只有文章或快照变化时不重复部署 Cloudflare。该工作流仅在 main 提交、定时任务或手动触发时运行，不接收外部 PR 的密钥请求。
+
+## 附件与访问体验（2026-10-19）
+
+后台“文章附件”支持文档、压缩包、文本和常见代码文件，单个最多 10MB，每篇最多 10 个，新附件一次总量最多 30MB。附件与草稿一起保存在本机，可导出和导入 JSON 备份；发布后显示在文章末尾。文件通过服务器登录和 CSRF 校验上传，以下载方式提供，不作为网页执行。未发布的附件仅作者登录后可读取。图片与附件共用 200MB 存储额度，继续使用现有免费 D1，不启用 R2。
+
+公开文章引用的附件会随 GitHub 快照同步到 `public/assets/attachments/`，同步执行大小和 SHA-256 校验。GitHub 端增添附件时，将文件放到该目录，并在 `content/posts.json` 的文章中设置 `attachments: [{path, name, size}]`；使用新的唯一文件名，扩展名与原文件名保持一致。密码、会话和未发布附件不会进入公开快照。迁移 `0005_attachments.sql` 为新增表，不修改既有文章与统计。
+
+浏览次数按一次入站访问计数：文章、分类、首页之间切换不增加，当前页刷新保留同一次访问；离开后重新进入新增一次。匿名浏览器标识仅用于访客去重，公开快照只有累计数。历史累计不重置。
+
+首页导航包含来访记录和留言板，窄屏可横向滑动并自动展示当前位置。在首页下方使用浏览器返回时，先平滑回到首屏，再返回可离开；系统历史返回和弹窗侧滑都有过渡。减少动态效果设置会关闭过渡与落叶。落叶仅用于氛围，不拦截点击，页面隐藏时暂停。中文使用完整的 Noto Sans SC 可变字库分包，按需加载；许可见 `public/assets/fonts/LICENSE-noto.txt`。
